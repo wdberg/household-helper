@@ -8,3 +8,7 @@ Open https://wdberg.github.io/household-helper/ on your phone:
 - **Android:** Chrome → Install app
 
 Everything is saved on the phone. Use Back up & restore at the bottom of the app to keep a copy.
+
+## Photo Cleanup (iPhone app)
+
+`PhotoCleanup/` holds a separate native iPhone app that removes duplicate photos and videos, converts Live Photos to normal photos, and cleans up screenshots, blurry shots and large videos. See [PhotoCleanup/README.md](PhotoCleanup/README.md) for how to install it with Xcode.
