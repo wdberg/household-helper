@@ -145,6 +145,45 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:now
 .restore{display:grid;gap:4px;margin-top:8px}
 .restore textarea{min-height:80px;font:13px ui-monospace,Menlo,monospace}
 @media (max-width:560px){.install-grid{grid-template-columns:1fr}}
+.rnote{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;margin:0 0 12px;font-size:14px}
+.rcards{display:grid;gap:8px}
+.rcard{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;cursor:pointer}
+.rcard input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.rcard small{display:block;color:var(--muted);font-size:13px}
+.rcard.on{border-color:var(--accent);background:var(--accent-soft)}
+.rfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:14px 0}
+.rfields label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted)}
+.rfields small{font-weight:400}
+.rfields input,.rfields select{font-size:16px}
+.rblocks{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.rb{display:grid;grid-template-columns:62px 1fr auto;gap:4px 10px;align-items:baseline;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px}
+.rb small{grid-column:2 / 4;color:var(--frz);font-weight:600;font-size:12.5px}
+.rb.away{background:var(--sunk);border-style:dashed}
+.rb-tag{font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--accent)}
+.rb.away .rb-tag{color:var(--muted)}
+.rb-n{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.warnline{color:var(--gf)}
+.sbanner{border-radius:var(--r);padding:12px 14px;margin:0 0 12px;background:var(--sunk);font-size:14px}
+.sbanner.good{background:var(--accent-soft)} .sbanner.due{background:var(--gf-soft);color:var(--gf)}
+.slinks{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.wadd{display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:end}
+.wadd label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+.wadd select,.wadd input{font-size:16px;width:100%}
+.watchlist{display:grid;gap:10px;margin-top:14px}
+.watch{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:grid;gap:10px;min-width:0}
+.watch.sale{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+.w-top{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:flex-start}
+.w-name{min-width:0} .w-name small{display:block;color:var(--muted);font-size:12.5px}
+.w-find{display:flex;flex-wrap:wrap;gap:6px}
+.w-log{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end}
+.w-log label,.w-target{display:grid;gap:3px;font-size:12px;font-weight:600;color:var(--muted);min-width:0}
+.w-log input,.w-log select,.w-target input{font-size:16px;width:100%}
+.w-foot{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.w-target{max-width:140px}
+.okchip{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.duechip{background:var(--gf-soft);color:var(--gf);font-weight:600}
+.ci-main .okchip{margin-left:6px;font-size:11.5px}
+@media (max-width:560px){.wadd{grid-template-columns:1fr}.w-log{grid-template-columns:1fr 1fr}.w-log .btn{width:100%}}
 .scanbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
 .hgroup{margin-top:14px}
 .hchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
@@ -222,9 +261,11 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-week" aria-selected="true" data-view="week">This week</button>
+    <button role="tab" id="tab-roster" aria-selected="false" data-view="roster">Roster</button>
     <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
     <button role="tab" id="tab-ideas" aria-selected="false" data-view="ideas">Breakfast, lunch &amp; snacks</button>
     <button role="tab" id="tab-costs" aria-selected="false" data-view="costs">Costs &amp; shopping</button>
+    <button role="tab" id="tab-specials" aria-selected="false" data-view="specials">Specials</button>
     <button role="tab" id="tab-household" aria-selected="false" data-view="household">Household</button>
     <button role="tab" id="tab-add" aria-selected="false" data-view="add">Add our recipe</button>
   </nav>
@@ -233,12 +274,13 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
     <section id="view-week">
       <h2>4-week plan</h2>
       <div class="qbar"><input type="search" class="q" id="q-week" data-q="week" placeholder="Search this week, e.g. chicken" autocomplete="off" aria-label="Search this week, e.g. chicken"><span class="qcount" id="qc-week"></span></div>
-      <p class="sub">Four rotating weeks of dinners for when you're home. While you're away on swing, home reheats freezer meals you batch cook the Sunday before you fly out. Swap any home dinner from the library.</p>
+      <p class="sub">Four rotating weeks of dinners, cooked Monday to Friday with leftovers on the weekend. If you're on a FIFO roster, the weeks you're away switch to freezer meals you batch cook the Sunday before you fly out. Swap any dinner from the library.</p>
       <div class="weeknav">
         <button class="btn ghost" id="prevWeek" aria-label="Previous week">←</button>
         <div class="wk"><div id="weekLabel" class="wl"></div><div id="weekRoster" class="wr"></div></div>
         <button class="btn ghost" id="nextWeek" aria-label="Next week">→</button>
       </div>
+      <div class="rnote" id="rosterNote"></div>
       <p class="status" id="saveStatus">Loading your saved plan…</p>
       <div class="days" id="days"></div>
       <div class="weekcost" id="weekCost"></div>
@@ -320,6 +362,36 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
         <div class="tablewrap"><table class="swaps"><thead><tr><th>Item</th><th class="num">Price</th><th></th></tr></thead><tbody id="priceRows"></tbody></table></div>
         <div class="row"><button class="btn ghost" id="resetPrices">Reset to estimates</button><span class="tip" id="priceMsg"></span></div>
       </details>
+    </section>
+
+    <section id="view-roster" hidden>
+      <h2>Your roster</h2>
+      <p class="sub">Pick the roster you work. Home weeks cook Monday to Friday with weekend leftovers. Away weeks use freezer meals, and the plan tells you which Sunday to batch cook before you fly out.</p>
+      <div id="rosterBody"></div>
+      <p class="tip" id="rosterMsg"></p>
+    </section>
+
+    <section id="view-specials" hidden>
+      <h2>Specials watchlist</h2>
+      <div class="qbar"><input type="search" class="q" id="q-specials" data-q="specials" placeholder="Search your watchlist" autocomplete="off" aria-label="Search your watchlist"><span class="qcount" id="qc-specials"></span></div>
+      <p class="sub">Supermarkets don't let apps read their prices, so this works as a watchlist. Set the price you'd happily pay for things you buy often. Woolworths and Coles start new specials every Wednesday, so check your list then and save any price you see. Anything at or under your target is flagged here and in your order list.</p>
+      <div id="specialsBanner"></div>
+      <div class="panel">
+        <h3>This week's specials</h3>
+        <div class="slinks" id="specialsLinks"></div>
+        <p class="tip">IGA prices and specials vary by store; the IGA links search IGA's online shop.</p>
+      </div>
+      <div class="panel">
+        <h3>Add to watchlist</h3>
+        <div class="wadd">
+          <label>Item<select id="w-pick"></select></label>
+          <label id="w-name-row" hidden>Name<input id="w-name" placeholder="e.g. Moccona coffee 400g"></label>
+          <label>Target price<input id="w-target" type="number" step="0.05" min="0" inputmode="decimal" placeholder="e.g. 12.00"></label>
+          <button class="btn" id="w-add">Watch it</button>
+        </div>
+        <p class="tip" id="watchMsg"></p>
+      </div>
+      <div class="watchlist" id="watchList"></div>
     </section>
 
     <section id="view-household" hidden>
@@ -471,23 +543,46 @@ const FREEZER = ["bolognese","lentil-soup","meatball-zucchini","sweet-potato-sou
 /* Quick cooks for away days when the freezer is empty */
 const EASY = ["kaleslaw-chicken","salmon-skewers","thai-beef-cups","falafel-wraps","schnitzel"];
 
-/* Roster: 2 wks on, 4 off, 2 on, 2 off (repeats every 10 weeks). This swing started Wed 11 Nov 2026. */
+/* Roster: chosen on the Roster tab and saved on the phone. Defaults to home every week. */
 const DAY_MS = 86400000;
-const ROSTER_START = Date.UTC(2026,10,11);
-const ROSTER = [["away",14],["home",28],["away",14],["home",14]];
-const CYCLE = ROSTER.reduce((a,[,n])=>a+n,0);
-const PLAN_START = Date.UTC(2026,10,23); // Mon 23 Nov = rotation week 1
-const FREEZER_FROM = Date.UTC(2026,10,25); // first batch cook possible once home
+const ROSTER_PRESETS = [
+  {id:"none", label:"Not on a roster", sub:"Home every week: cook Monday to Friday, leftovers on the weekend"},
+  {id:"2224", label:"2 on, 2 off, 2 on, 4 off", sub:"10-week cycle"},
+  {id:"22", label:"2 weeks on, 2 weeks off", sub:"4-week cycle"},
+  {id:"21", label:"2 weeks on, 1 week off", sub:"3-week cycle"},
+  {id:"custom", label:"Custom", sub:"Set your own days away and days home"}
+];
+let rosterCfg = {preset:"none", start:"", nextBreak:"4", on:14, off:14};
+let ROSTER = null, ROSTER_START = 0, CYCLE = 1, FREEZER_FROM = 0;
+const PLAN_START = Date.UTC(2026,10,23); // a Monday: rotation week 1
+function parseDay(s){ const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s||""); return m ? Date.UTC(+m[1], +m[2]-1, +m[3]) : null; }
+function rosterSegments(c){
+  if (c.preset === "2224") return c.nextBreak === "2" ? [["away",14],["home",14],["away",14],["home",28]] : [["away",14],["home",28],["away",14],["home",14]];
+  if (c.preset === "22") return [["away",14],["home",14]];
+  if (c.preset === "21") return [["away",14],["home",7]];
+  if (c.preset === "custom"){ const on = Math.max(1, Math.min(60, +c.on||14)), off = Math.max(1, Math.min(60, +c.off||14)); return [["away",on],["home",off]]; }
+  return null;
+}
+function applyRoster(){
+  const start = parseDay(rosterCfg.start);
+  const segs = start != null ? rosterSegments(rosterCfg) : null;
+  ROSTER = segs; ROSTER_START = start || 0;
+  CYCLE = segs ? segs.reduce((a,[,n])=>a+n,0) : 1;
+  FREEZER_FROM = segs ? ROSTER_START + segs[0][1]*DAY_MS : 0; // freezer meals exist from the first break onwards
+}
 function utc(d){ return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
 function status(t){
+  if (!ROSTER) return "home";
   let i = Math.floor((t-ROSTER_START)/DAY_MS); i = ((i%CYCLE)+CYCLE)%CYCLE;
   for (const [s,n] of ROSTER){ if (i<n) return s; i-=n; }
   return "home";
 }
 function nextAwayStart(t){ // first away day strictly after a home day t, within 60 days
+  if (!ROSTER) return null;
   for (let k=1;k<=60;k++){ const x=t+k*DAY_MS; if (status(x)==="away" && status(x-DAY_MS)==="home") return x; }
   return null;
 }
+applyRoster();
 
 const IDEAS = {
   breakfast:[
@@ -738,12 +833,10 @@ function weekBasket(w, withNeeds){
   return {days, lines, extras, batch, homeDays, mealCost, stapleCost, food:mealCost+stapleCost, homeCost, checkout, pantry, serves, uncosted, start:days[0].t};
 }
 
-function searchUrl(name){
-  const q = encodeURIComponent(name.replace(/\s*\(.*?\)\s*/g," ").trim());
-  /* Coles search link: opens in the Coles app when it's installed, otherwise coles.com.au */
-  return shopStore==="coles" ? `https://www.coles.com.au/search/products?q=${q}` : `https://www.woolworths.com.au/shop/search/products?searchTerm=${q}`;
-}
-const storeName = () => shopStore==="coles" ? "Coles" : "Woolworths";
+/* Find links: Woolworths and Coles search (opens their app if installed); IGA via a search of IGA product pages, as each IGA runs its own online shop */
+function searchUrl(name){ return searchUrlFor(shopStore, name); }
+const storeName = () => shopStore==="coles" ? "Coles" : shopStore==="iga" ? "IGA" : "Woolworths";
+const storeToggleHtml = () => [["woolworths","Woolworths"],["coles","Coles"],["iga","IGA"]].map(([x,l])=>`<button data-store="${x}" aria-pressed="${x===shopStore}">${l}</button>`).join("");
 
 function tickKey(start){ return "hh-cart-" + new Date(start).toISOString().slice(0,10); }
 function loadTicks(start){ try{ return JSON.parse(localStorage.getItem(tickKey(start))||"{}"); }catch{ return {}; } }
@@ -757,7 +850,8 @@ const OPTIONS = [
   {name:"Coles Plus Delivery", fee:"$19 a month or $199 a year", yearly:199, note:"$0 delivery on orders of $75 or more, plus free Rapid Click & Collect."},
   {name:"Coles, pay per delivery", fee:"$2 to $11 an order", yearly:7*ORDERS_PER_YEAR, note:"Fee depends on time slot and order size. Minimum order $50; free over $250."},
   {name:"Woolworths, pay per delivery", fee:"$7 to $15 an order", yearly:11*ORDERS_PER_YEAR, note:"Minimum order $50; free over $250 in some postcodes."},
-  {name:"Click & Collect (either store)", fee:"Low or no fee", yearly:null, note:"Cheapest when you're home, but someone has to collect it while you're away."},
+  {name:"IGA Shop Online", fee:"About $9 an order", yearly:9*ORDERS_PER_YEAR, note:"Delivery fees and minimum orders are set by each IGA store, and not every store delivers."},
+  {name:"Click & Collect (any store)", fee:"Low or no fee", yearly:null, note:"Cheapest when you're home, but someone has to collect it while you're away."},
   {name:"Aldi, in store", fee:"No online shop", yearly:null, note:"CHOICE's March 2026 basket was about 12% cheaper at Aldi than Woolworths ($68.60 vs $77.53). Aldi has no online shop of its own; DoorDash delivery in some areas costs more."}
 ];
 
@@ -786,7 +880,7 @@ function renderCosts(){
     const key = l.id;
     return `<li class="cart-item${ticks[key]?" done":""}">
       <input type="checkbox" id="cart-${key}" data-cart="${key}"${ticks[key]?" checked":""} aria-label="In cart: ${esc(l.name)}">
-      <div class="ci-main"><label for="cart-${key}" class="iname">${l.packs} × ${esc(l.name)}</label><small>${esc(l.pack)} · ${esc(l.for.join(" · "))}</small></div>
+      <div class="ci-main"><label for="cart-${key}" class="iname">${l.packs} × ${esc(l.name)}</label>${(() => { const sw = saleFor(l.id); return sw ? `<span class="chip okchip">On sale ${money(+sw.seen)} at ${esc(sw.seenStore||"")}</span>` : ""; })()}<small>${esc(l.pack)} · ${esc(l.for.join(" · "))}</small></div>
       <div class="ci-price">${l.unpriced ? "–" : money(l.total)}</div>
       <a class="ci-link" href="${searchUrl(l.name)}" data-name="${esc(l.name.replace(/\s*\(.*?\)\s*/g,' ').trim())}" target="_blank" rel="noopener" aria-label="Find ${esc(l.name)} at ${storeName()}">Find ↗</a>
     </li>`;
@@ -806,7 +900,7 @@ function renderCosts(){
     <div class="cart-total"><span>Estimated total, excluding pantry items</span><strong>${money(b.checkout)}</strong></div>
     <div class="row"><button class="btn" id="copyCart">Copy list</button><button class="btn ghost" id="clearCart">Untick all</button>${needCount()?'<button class="btn ghost" id="clearNeeds">Order done: clear household &amp; scanned items</button>':""}<span class="tip" id="cartMsg"></span></div>`;
 
-  document.getElementById("storeToggle").innerHTML = ["woolworths","coles"].map(s=>`<button data-store="${s}" aria-pressed="${s===shopStore}">${s==="coles"?"Coles":"Woolworths"}</button>`).join("");
+  document.getElementById("storeToggle").innerHTML = storeToggleHtml();
 
   // dinner costs for this rotation week
   document.getElementById("dinnerCosts").innerHTML = b.days.filter(d=>d.mode==="cook"||d.mode==="easy").map(d=>{
@@ -850,11 +944,13 @@ function cartText(){
 
 /* With Coles selected, Find also copies the item name, so it can be pasted into the Coles app search if the link opens in a browser */
 document.addEventListener("click", e => {
-  const a = e.target.closest("a.ci-link, a.hfind"); if (!a || shopStore !== "coles" || !a.dataset.name) return;
-  const msg = document.getElementById(a.classList.contains("hfind") ? "homeMsg" : "cartMsg");
+  const a = e.target.closest("a.ci-link, a.hfind"); if (!a || !a.dataset.name) return;
+  const st = a.dataset.st || shopStore; if (st === "woolworths") return;
+  const sname = st === "iga" ? "IGA" : "Coles";
+  const msg = document.getElementById(a.dataset.st ? "watchMsg" : a.classList.contains("hfind") ? "homeMsg" : "cartMsg");
   try{
     navigator.clipboard.writeText(a.dataset.name).then(
-      () => { if (msg) msg.textContent = `Copied "${a.dataset.name}". If a browser opens, switch to the Coles app and paste it into search.`; },
+      () => { if (msg) msg.textContent = `Copied "${a.dataset.name}". If a browser opens, switch to the ${sname} app and paste it into search.`; },
       () => {}
     );
   }catch{}
@@ -886,7 +982,7 @@ document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
   if (b.id === "costPrev" && weekIdx > -2){ weekIdx--; renderWeek(); }
   if (b.id === "costNext"){ weekIdx++; renderWeek(); }
-  if (b.dataset.store){ shopStore = b.dataset.store; try{ localStorage.setItem("hh-store", shopStore); }catch{} renderCosts(); renderHousehold(); }
+  if (b.dataset.store){ shopStore = b.dataset.store; try{ localStorage.setItem("hh-store", shopStore); }catch{} renderCosts(); renderHousehold(); renderSpecials(); }
   if (b.id === "copyCart"){
     const msg = document.getElementById("cartMsg");
     try{ await navigator.clipboard.writeText(cartText()); msg.textContent = "Copied. Paste it into Notes or a message."; }
@@ -953,7 +1049,7 @@ function findLink(name){
 function renderHousehold(){
   const box = document.getElementById("homeBody"); if (!box) return;
   const st = document.getElementById("homeStoreToggle");
-  if (st) st.innerHTML = ["woolworths","coles"].map(x=>`<button data-store="${x}" aria-pressed="${x===shopStore}">${x==="coles"?"Coles":"Woolworths"}</button>`).join("");
+  if (st) st.innerHTML = storeToggleHtml();
   const chip = (key, name, sub) => `<button class="hchip" data-need="${esc(key)}" aria-pressed="${!!needs[key]}"><span>${esc(name)}</span><small>${esc(sub)}</small></button>`;
   const groups = HOUSEHOLD_GROUPS.map(([label, ids]) => `<div class="hgroup"><div class="mlab">${label}</div><div class="hchips">${ids.map(id=>`<span class="hwrap">${chip(id, PRODUCTS[id][0], money(price(id)))}${findLink(PRODUCTS[id][0])}</span>`).join("")}</div></div>`).join("");
   const mine = myItems.length ? `<div class="hgroup"><div class="mlab">Your scanned items</div><div class="hchips">${myItems.map(it => {
@@ -1161,7 +1257,8 @@ const FILTERS = {
   ideas:{items:"#ideas li, #swapRows tr", groups:"#ideas > section"},
   costs:{items:"#cartBody .cart-item, #priceRows tr:not(.ph), #dinnerCosts tr", groups:"#cartBody .cart-group", open:"#view-costs details.prices, #cartBody details.pantry-check"},
   household:{items:"#homeBody .hwrap", groups:"#homeBody .hgroup"},
-  add:{items:"#oursGrid .card"}
+  add:{items:"#oursGrid .card"},
+  specials:{items:"#watchList .watch"}
 };
 const queries = {};
 const norm = t => (t||"").toLowerCase().replace(/&amp;/g,"&").replace(/\s+/g," ");
@@ -1198,6 +1295,154 @@ document.addEventListener("input", e => {
   const mo = new MutationObserver(() => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; applyAllFilters(); }); });
   mo.observe(document.querySelector("main"), {childList:true, subtree:true});
 })();
+
+/* ---------- Roster tab ---------- */
+function fmtLong(t){ return new Date(t).toLocaleDateString("en-AU",{weekday:"short", day:"numeric", month:"short", timeZone:"UTC"}); }
+function rosterBlocks(fromT, weeks){
+  const out = []; const end = fromT + weeks*7*DAY_MS;
+  let t = fromT, cur = status(t), s = t;
+  while (t < end){ t += DAY_MS; const st = status(t); if (st !== cur || t >= end){ out.push({st:cur, from:s, to:t-DAY_MS}); cur = st; s = t; } }
+  return out;
+}
+function renderRoster(){
+  const box = document.getElementById("rosterBody"); if (!box) return;
+  const c = rosterCfg;
+  const cards = ROSTER_PRESETS.map(p => `<label class="rcard${c.preset===p.id?" on":""}"><input type="radio" name="rpreset" id="rp-${p.id}" value="${p.id}"${c.preset===p.id?" checked":""}><span><strong>${esc(p.label)}</strong><small>${esc(p.sub)}</small></span></label>`).join("");
+  const needsDate = c.preset !== "none";
+  const fields = !needsDate ? "" : `<div class="rfields">
+      <label>First day of a swing<small>The day you fly out. Any swing works, past or future.</small><input type="date" id="r-start" value="${esc(c.start)}"></label>
+      ${c.preset==="2224" ? `<label>The break after that swing is<select id="r-break"><option value="4"${c.nextBreak!=="2"?" selected":""}>4 weeks</option><option value="2"${c.nextBreak==="2"?" selected":""}>2 weeks</option></select></label>` : ""}
+      ${c.preset==="custom" ? `<label>Days away<input type="number" id="r-on" min="1" max="60" inputmode="numeric" value="${esc(c.on)}"></label><label>Days home<input type="number" id="r-off" min="1" max="60" inputmode="numeric" value="${esc(c.off)}"></label>` : ""}
+    </div>`;
+  let preview = "";
+  if (needsDate && !ROSTER) preview = `<p class="tip warnline">Pick the first day of a swing to see your plan follow your roster.</p>`;
+  if (ROSTER){
+    const blocks = rosterBlocks(todayUTC, 12);
+    preview = `<h3>Next 12 weeks</h3><ul class="rblocks">${blocks.map(b => {
+      const days = Math.round((b.to-b.from)/DAY_MS)+1;
+      const batch = b.st==="away" ? (() => { let x = b.from - DAY_MS; while (x > b.from - 7*DAY_MS && new Date(x).getUTCDay() !== 0) x -= DAY_MS; return status(x)==="home" && new Date(x).getUTCDay()===0 ? x : null; })() : null;
+      return `<li class="rb ${b.st}"><span class="rb-tag">${b.st==="away"?"Away":"Home"}</span><span class="rb-d">${fmtLong(b.from)} – ${fmtLong(b.to)}</span><span class="rb-n">${days} day${days===1?"":"s"}</span>${batch?`<small>Batch cook freezer meals ${fmtLong(batch)}</small>`:""}</li>`;
+    }).join("")}</ul>`;
+  }
+  box.innerHTML = `<div class="rcards">${cards}</div>${fields}${preview}`;
+  const note = document.getElementById("rosterNote");
+  if (note){
+    const p = ROSTER_PRESETS.find(x=>x.id===c.preset);
+    note.innerHTML = ROSTER ? `<span>Roster: <strong>${esc(p.label)}</strong></span><button class="linkbtn" data-view="roster">Change</button>`
+      : `<span>Working FIFO? Set your roster and the plan switches to freezer meals while you're away.</span><button class="btn ghost" data-view="roster">Set roster →</button>`;
+  }
+}
+async function saveRoster(){
+  applyRoster(); renderRoster(); renderWeek();
+  const msg = document.getElementById("rosterMsg");
+  if (!db){ if (msg) msg.textContent = "Changed for now. This browser can't save, so it resets when you close it."; return; }
+  try{ await db.doc("settings/roster").set({...rosterCfg}); if (msg) msg.textContent = "Saved. The plan now follows this roster."; }
+  catch{ if (msg) msg.textContent = "Couldn't save. Check the phone isn't out of storage."; }
+}
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (el.name === "rpreset"){ rosterCfg = {...rosterCfg, preset: el.value}; saveRoster(); }
+  if (el.id === "r-start"){ rosterCfg = {...rosterCfg, start: el.value}; saveRoster(); }
+  if (el.id === "r-break"){ rosterCfg = {...rosterCfg, nextBreak: el.value}; saveRoster(); }
+  if (el.id === "r-on" || el.id === "r-off"){ rosterCfg = {...rosterCfg, on: +document.getElementById("r-on").value || 14, off: +document.getElementById("r-off").value || 14}; saveRoster(); }
+});
+
+/* ---------- Specials watchlist ---------- */
+const STORES = [["woolworths","Woolworths"],["coles","Coles"],["iga","IGA"]];
+const SPECIALS_LINKS = [
+  ["Woolworths specials","https://www.woolworths.com.au/shop/browse/specials"],
+  ["Woolworths catalogue","https://www.woolworths.com.au/shop/catalogue"],
+  ["Coles specials","https://www.coles.com.au/on-special"],
+  ["Coles catalogue","https://www.coles.com.au/catalogues"],
+  ["IGA specials","https://www.igashop.com.au/specials"]
+];
+let watch = [];
+function specialsWeekStart(){ // most recent Wednesday, local time, as a timestamp
+  const d = new Date(); d.setHours(0,0,0,0);
+  while (d.getDay() !== 3) d.setDate(d.getDate()-1);
+  return d.getTime();
+}
+function searchUrlFor(store, name){
+  const q = encodeURIComponent(name.replace(/\s*\(.*?\)\s*/g," ").trim());
+  if (store === "coles") return `https://www.coles.com.au/search/products?q=${q}`;
+  if (store === "iga") return `https://www.google.com/search?q=${encodeURIComponent("site:igashop.com.au/product ")}${q}`;
+  return `https://www.woolworths.com.au/shop/search/products?searchTerm=${q}`;
+}
+const watchName = w => w.pid && PRODUCTS[w.pid] ? PRODUCTS[w.pid][0] : (w.name || "Item");
+const watchNormal = w => w.pid && PRODUCTS[w.pid] ? price(w.pid) : null;
+function watchState(w){
+  const wk = specialsWeekStart();
+  const fresh = (w.seenAt||0) >= wk;
+  const target = parseFloat(w.target);
+  if (fresh && w.seen != null && isFinite(target) && +w.seen <= target) return "sale";
+  if ((w.checkedAt||0) >= wk || fresh) return "checked";
+  return "due";
+}
+const saleFor = pid => watch.find(w => w.pid === pid && watchState(w) === "sale");
+function renderSpecials(){
+  const box = document.getElementById("watchList"); if (!box) return;
+  const wk = specialsWeekStart();
+  const due = watch.filter(w => watchState(w)==="due").length;
+  const sale = watch.filter(w => watchState(w)==="sale");
+  const today = new Date().getDay();
+  document.getElementById("specialsBanner").innerHTML = !watch.length ? "" :
+    `<div class="sbanner ${sale.length?"good":due?"due":""}">${sale.length ? `<strong>${sale.length} on sale at or under your target</strong> this week: ${sale.map(w=>esc(watchName(w))).join(", ")}.` : due ? `<strong>${due} item${due===1?"":"s"} to check.</strong> ${today===3?"New specials started today.":`Specials started ${fmtLocal(wk)}.`}` : "All watched items checked for this week's specials."}</div>`;
+  document.getElementById("specialsLinks").innerHTML = SPECIALS_LINKS.map(([l,u])=>`<a class="ci-link" href="${u}" target="_blank" rel="noopener">${l} ↗</a>`).join("");
+  const opts = AISLE_NAMES.map(([a,label]) => `<optgroup label="${label}">${Object.keys(PRODUCTS).filter(id=>PRODUCTS[id][3]===a).map(id=>`<option value="${id}">${esc(PRODUCTS[id][0])}</option>`).join("")}</optgroup>`).join("");
+  const sel = document.getElementById("w-pick"); if (sel && !sel.dataset.filled){ sel.innerHTML = `<option value="">Pick an item…</option>${opts}<option value="__other">Something else…</option>`; sel.dataset.filled = "1"; }
+  if (!watch.length){ box.innerHTML = `<p class="empty">Nothing on your watchlist yet. Add the things you buy often and the price you'd happily pay, like coffee, meat, laundry liquid or nappies.</p>`; return; }
+  const order = {sale:0, due:1, checked:2};
+  box.innerHTML = [...watch].sort((a,b)=>order[watchState(a)]-order[watchState(b)] || watchName(a).localeCompare(watchName(b))).map(w => {
+    const st = watchState(w), name = watchName(w), normal = watchNormal(w);
+    const chip = st==="sale" ? `<span class="chip okchip">On sale: ${money(+w.seen)} at ${esc(w.seenStore||"")}</span>` : st==="due" ? `<span class="chip duechip">Check this week</span>` : `<span class="chip">Checked${w.seen!=null && (w.seenAt||0)>=wk ? `, ${money(+w.seen)} at ${esc(w.seenStore||"")}` : ", not on sale"}</span>`;
+    return `<article class="watch ${st}">
+      <div class="w-top"><div class="w-name"><strong>${esc(name)}</strong><small>${normal!=null?`Usually about ${money(normal)} · `:""}Target ${isFinite(parseFloat(w.target))?money(parseFloat(w.target)):"not set"}</small></div>${chip}</div>
+      <div class="w-find">${STORES.map(([s,l])=>`<a class="ci-link" href="${searchUrlFor(s,name)}" target="_blank" rel="noopener" data-name="${esc(name)}" data-st="${s}">${l} ↗</a>`).join("")}</div>
+      <div class="w-log">
+        <label>Price I saw<input type="number" step="0.05" min="0" inputmode="decimal" id="ws-${esc(w.id)}" placeholder="e.g. 4.50"></label>
+        <label>At<select id="wst-${esc(w.id)}">${STORES.map(([,l])=>`<option${l===(w.seenStore||"Woolworths")?" selected":""}>${l}</option>`).join("")}</select></label>
+        <button class="btn" data-wlog="${esc(w.id)}">Save price</button>
+        <button class="btn ghost" data-wcheck="${esc(w.id)}">Not on sale</button>
+      </div>
+      <div class="w-foot"><label class="w-target">Target price<input type="number" step="0.05" min="0" inputmode="decimal" data-wtarget="${esc(w.id)}" id="wt-${esc(w.id)}" value="${isFinite(parseFloat(w.target))?parseFloat(w.target).toFixed(2):""}"></label><button class="linkbtn" data-wdel="${esc(w.id)}">Remove</button></div>
+    </article>`;
+  }).join("");
+}
+function fmtLocal(ms){ return new Date(ms).toLocaleDateString("en-AU",{weekday:"short", day:"numeric", month:"short"}); }
+async function watchWrite(id, data){
+  const msg = document.getElementById("watchMsg");
+  if (!db){ msg.textContent = "This browser can't save, so the watchlist resets when you close it."; return; }
+  try{ if (id) await db.collection("watch").doc(id).update(data); else await db.collection("watch").add(data); }
+  catch{ msg.textContent = "Couldn't save. Check the phone isn't out of storage."; }
+}
+document.addEventListener("change", e => {
+  if (e.target.id === "w-pick"){ document.getElementById("w-name-row").hidden = e.target.value !== "__other"; }
+  if (e.target.dataset && e.target.dataset.wtarget){ const v = parseFloat(e.target.value); watchWrite(e.target.dataset.wtarget, {target: isFinite(v) ? v : null}); }
+});
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  const msg = document.getElementById("watchMsg");
+  if (b.id === "w-add"){
+    const pick = document.getElementById("w-pick").value, nm = document.getElementById("w-name").value.trim(), tg = parseFloat(document.getElementById("w-target").value);
+    if (!pick){ msg.textContent = "Pick an item first."; return; }
+    if (pick === "__other" && !nm){ msg.textContent = "Type the item's name."; return; }
+    const pid = pick === "__other" ? "" : pick;
+    if (pid && watch.some(w => w.pid === pid)){ msg.textContent = "That's already on your watchlist."; return; }
+    await watchWrite(null, {pid, name: pid ? "" : nm, target: isFinite(tg) ? tg : null, created: Date.now()});
+    msg.textContent = `Watching ${pid ? PRODUCTS[pid][0] : nm}.`;
+    document.getElementById("w-pick").value = ""; document.getElementById("w-name").value = ""; document.getElementById("w-target").value = ""; document.getElementById("w-name-row").hidden = true;
+  }
+  if (b.dataset.wlog){
+    const id = b.dataset.wlog, v = parseFloat(document.getElementById("ws-"+id).value);
+    if (!isFinite(v)){ msg.textContent = "Type the price you saw first."; return; }
+    await watchWrite(id, {seen: v, seenStore: document.getElementById("wst-"+id).value, seenAt: Date.now(), checkedAt: Date.now()});
+  }
+  if (b.dataset.wcheck){ await watchWrite(b.dataset.wcheck, {checkedAt: Date.now(), seen: null, seenAt: 0}); }
+  if (b.dataset.wdel){
+    if (b.dataset.confirm !== "1"){ b.dataset.confirm = "1"; b.textContent = "Tap again to remove"; return; }
+    if (db){ try{ await db.collection("watch").doc(b.dataset.wdel).delete(); }catch{ msg.textContent = "Couldn't remove it."; } }
+  }
+});
 
 function card(r){
   return `<article class="card">
@@ -1252,7 +1497,7 @@ function openRecipe(id){
 
 function setView(v){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
-  ["week","recipes","ideas","costs","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+  ["week","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
 }
 
 function renderAll(){ renderWeek(); renderRecipes(); }
@@ -1296,7 +1541,7 @@ document.getElementById("addForm").addEventListener("submit", async e => {
   btn.disabled = false;
 });
 
-renderAll(); renderIdeas(); renderOptions(); renderPriceEditor();
+renderAll(); renderIdeas(); renderOptions(); renderPriceEditor(); renderRoster(); renderSpecials();
 
 (async () => {
   const st = document.getElementById("saveStatus");
@@ -1310,6 +1555,15 @@ renderAll(); renderIdeas(); renderOptions(); renderPriceEditor();
     st.textContent = snap.exists ? "Your saved plan." : "Default plan. Swap any dinner to save your own.";
     renderWeek();
   }, () => { clearTimeout(timer); st.textContent = "Couldn't load your saved plan. Showing the default."; });
+  db.doc("settings/roster").onSnapshot(snap => {
+    const d = snap.exists ? snap.data() : null;
+    if (d) rosterCfg = {...rosterCfg, ...d};
+    applyRoster(); renderRoster(); renderWeek();
+  }, () => {});
+  db.collection("watch").onSnapshot(snap => {
+    watch = snap.docs.map(d => ({...d.data(), id:d.id}));
+    renderSpecials(); renderCosts();
+  }, () => {});
   db.doc("prices/overrides").onSnapshot(snap => {
     const d = snap.exists ? snap.data() : null;
     priceOverrides = {...((d && d.p) || {})};
