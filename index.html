@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Household Helper</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Household Helper">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#2f7a45">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2">
+<link rel="icon" href="icons/favicon-32.png?v=2">
+<link rel="manifest" href="manifest.webmanifest">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column kitchen app — sticky tab bar, day cards for the week, a recipe library, an ideas board. */
+:root{
+  --bg:#f6f8f4; --surface:#ffffff; --sunk:#eaefe6; --line:#d5ddd0;
+  --ink:#18241b; --muted:#5b6a5e; --accent:#2f7a45; --accent-ink:#ffffff; --accent-soft:#e0efe3;
+  --gf:#9a5b00; --gf-soft:#fbefd9; --warn:#a3392b; --frz:#1d5f8a; --frz-soft:#e1eef7;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111813; --surface:#18221b; --sunk:#1f2b22; --line:#2d3b30;
+  --ink:#e6eee7; --muted:#9db0a1; --accent:#6cc285; --accent-ink:#0c1a10; --accent-soft:#1f3a28;
+  --gf:#f0b55a; --gf-soft:#3a2c14; --warn:#f08a7a; --frz:#8cc6ee; --frz-soft:#18303f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111813; --surface:#18221b; --sunk:#1f2b22; --line:#2d3b30;
+  --ink:#e6eee7; --muted:#9db0a1; --accent:#6cc285; --accent-ink:#0c1a10; --accent-soft:#1f3a28;
+  --gf:#f0b55a; --gf-soft:#3a2c14; --warn:#f08a7a; --frz:#8cc6ee; --frz-soft:#18303f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 60px}
+header h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;letter-spacing:-.01em;text-wrap:balance}
+header p{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.season{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.season b{font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:.06em;font-size:11px;margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:99px;background:var(--sunk);font-size:12.5px;color:var(--ink)}
+.gf{background:var(--gf-soft);color:var(--gf);font-weight:600}
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;gap:4px;margin:20px 0 16px;padding-block:8px;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs button{font:600 14px var(--body);border:0;background:none;color:var(--muted);padding:8px 14px;border-radius:99px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h2{font-family:var(--display);font-weight:700;font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px;font-size:14px}
+.status{font-size:12.5px;color:var(--muted);margin:-8px 0 14px}
+.days{display:grid;gap:12px}
+.day{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;grid-template-columns:64px 1fr;gap:14px}
+.day .dn{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.day .dd{font-size:12px;color:var(--muted)}
+.meals{display:grid;gap:8px;min-width:0}
+.mrow{display:grid;grid-template-columns:82px 1fr;gap:8px;align-items:baseline}
+.mlab{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.dinner{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.dinner .t{font-weight:600;font-size:16px}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);font:600 13px var(--body);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+select,input,textarea{font:14px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px;max-width:100%}
+.swap{font-size:13px;padding:4px 6px}
+.weekend{background:var(--accent-soft);border-color:transparent}
+.weekend .dn{color:var(--ink)}
+.away{background:var(--sunk);border-style:dashed}
+.away .dn{color:var(--muted)}
+.aw{margin-top:4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;color:var(--muted)}
+.frz{background:var(--frz-soft);color:var(--frz);font-weight:600}
+.shopwrap{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px}
+.shopwrap summary{font-family:var(--display);font-weight:700;font-size:18px;cursor:pointer}
+.aisles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 18px;margin:10px 0 14px}
+.aisle{min-width:0}
+ul.shop{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:2px}
+ul.shop label{display:flex;gap:10px;align-items:flex-start;padding:5px 0;cursor:pointer}
+ul.shop input{margin-top:3px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+ul.shop small{display:block;font-size:12px;color:var(--muted)}
+ul.shop input:checked + span .iname{text-decoration:line-through;color:var(--muted)}
+.weekcost{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.cost{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;min-width:0}
+.stat .sv{font-family:var(--display);font-weight:700;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat .sl{font-size:12.5px;color:var(--muted);margin-top:2px}
+.stat.ok .sv{color:var(--accent)} .stat.warn .sv{color:var(--gf)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:14px;min-width:0}
+.panel h3{font-family:var(--display);font-size:19px;margin:0 0 6px}
+.panel-head{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
+.seg{margin:0}
+.cart-groups{display:grid;gap:16px;margin-top:10px}
+.cg-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:4px}
+.cg-sub{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+ul.cart{list-style:none;margin:0;padding:0}
+.cart-item{display:grid;grid-template-columns:22px 1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--sunk)}
+.cart-item input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.ci-main{min-width:0}
+.ci-main .iname{font-weight:500;cursor:pointer}
+.ci-main small{display:block;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.ci-price{font-variant-numeric:tabular-nums;font-size:14px}
+.ci-link{font:600 13px var(--body);color:var(--accent);text-decoration:none;padding:4px 10px;border:1px solid var(--line);border-radius:99px;white-space:nowrap}
+.ci-link:hover{border-color:var(--accent)}
+.cart-item.done .iname{text-decoration:line-through;color:var(--muted)}
+.pantry-check{margin-top:14px;font-size:14px}
+.pantry-check summary{cursor:pointer;color:var(--muted);font-weight:600}
+.cart-total{display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin:14px 0 12px;padding-top:10px;border-top:2px solid var(--ink)}
+.cart-total strong{font-family:var(--display);font-size:22px;font-variant-numeric:tabular-nums}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.opts td small,.prices td small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.opts tr.best td{background:var(--accent-soft)}
+.reco{margin-top:12px;background:var(--accent-soft);border-radius:10px;padding:12px 14px}
+.reco ul{margin:6px 0;padding-left:18px;display:grid;gap:4px}
+.ahead{display:grid;gap:6px;margin-top:6px}
+.ah{display:grid;grid-template-columns:56px 1fr 60px 110px;gap:10px;align-items:center;font-size:13.5px}
+.ah-d,.ah-t{color:var(--muted)} .ah-v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.ah-bar{height:12px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.bar{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.bar.away{background:var(--muted)} .bar.mixed{background:var(--frz)}
+.prices summary{cursor:pointer;display:grid;gap:2px}
+.prices summary h3{display:inline}
+.prices input{width:90px;text-align:right}
+.prices tr.ph th{padding-top:14px}
+@media (max-width:640px){.stats{grid-template-columns:1fr 1fr}.ah{grid-template-columns:50px 1fr 54px}.ah-t{display:none}}
+@media (max-width:420px){.cart-item{grid-template-columns:22px 1fr auto}.ci-link{grid-column:2 / 4;justify-self:start}}
+.homelink{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px}
+.qbar{position:relative;margin:4px 0 14px;display:flex;align-items:center;gap:10px}
+.qbar .q{flex:1;min-width:0;font-size:16px;padding:10px 12px 10px 36px;border-radius:99px;background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23889a8c' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat 13px center}
+.qcount{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.hfind{display:inline-flex;align-items:center;font:600 12.5px var(--body);color:var(--accent);text-decoration:none;border:1px solid var(--line);border-left:0;background:var(--surface);padding:0 10px;border-radius:0 10px 10px 0}
+.hwrap .hfind + .hdel{border-radius:0 10px 10px 0}
+.hwrap:has(.hdel) .hfind{border-radius:0}
+.hwrap .hchip{border-radius:10px 0 0 10px}
+.updatebar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--ink);color:var(--bg);padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.install{margin-top:16px;background:var(--accent-soft);border-radius:var(--r);padding:14px 16px}
+.install-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.install h3{font-family:var(--display);font-size:18px;margin:0}
+.install-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 6px}
+.inst{background:var(--surface);border-radius:10px;padding:10px 12px;border:2px solid transparent;min-width:0}
+.inst.mine{border-color:var(--accent)}
+.inst ol{margin:6px 0 0;padding-left:18px;display:grid;gap:3px;font-size:14px}
+.backup summary{cursor:pointer;display:grid;gap:2px}
+.backup summary h3{display:inline}
+.restore{display:grid;gap:4px;margin-top:8px}
+.restore textarea{min-height:80px;font:13px ui-monospace,Menlo,monospace}
+@media (max-width:560px){.install-grid{grid-template-columns:1fr}}
+.scanbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 4px}
+.hgroup{margin-top:14px}
+.hchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.hchip{display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;font:500 14px var(--body);text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;border-radius:10px;cursor:pointer}
+.hchip small{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.hchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.hchip[aria-pressed="true"] small{color:var(--accent-ink);opacity:.85}
+.hwrap{display:inline-flex;align-items:stretch}
+.hwrap .hchip{border-radius:10px 0 0 10px}
+.hdel{border:1px solid var(--line);border-left:0;background:var(--sunk);color:var(--muted);border-radius:0 10px 10px 0;padding:0 10px;font:600 14px var(--body);cursor:pointer}
+.weeknav{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.weeknav .btn{padding:8px 14px}
+.weeknav .btn:disabled{opacity:.4;cursor:default}
+.wk{flex:1;min-width:0;text-align:center}
+.wl{font-family:var(--display);font-weight:700;font-size:17px}
+.wr{font-size:13px;color:var(--muted)}
+.tip{font-size:13px;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.filters button{font:500 13px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 12px;border-radius:99px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{font-size:16px;margin:0;font-weight:600;line-height:1.3}
+.meta{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);align-items:center}
+.card .foot{margin-top:auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.ours{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.btn{font:600 14px var(--body);border:0;border-radius:99px;padding:9px 16px;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.btn.ghost{background:var(--sunk);color:var(--ink)}
+.btn.danger{background:var(--warn);color:var(--bg)}
+form.add{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px;margin-bottom:18px}
+form.add .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+form.add label{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--muted);min-width:0}
+form.add textarea{min-height:90px;resize:vertical}
+.check{display:flex!important;flex-direction:row;align-items:center;gap:8px;font-weight:500!important;color:var(--ink)!important}
+.ideas{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.ideas section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0}
+.ideas h3{font-family:var(--display);font-size:18px;margin:0 0 8px}
+.ideas ul{margin:0;padding-left:18px;display:grid;gap:6px}
+.ideas li small{color:var(--muted);display:block}
+.swaps{width:100%;border-collapse:collapse;font-size:14px}
+.swaps th,.swaps td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.swaps th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+dialog{border:0;border-radius:16px;padding:0;max-width:min(560px,calc(100vw - 32px));width:100%;background:var(--surface);color:var(--ink)}
+dialog::backdrop{background:rgba(10,20,12,.5)}
+.dlg{padding:20px;display:grid;gap:12px}
+.dlg h3{font-family:var(--display);font-size:22px;margin:0}
+.dlg ol,.dlg ul{margin:0;padding-left:20px;display:grid;gap:4px}
+.dlg .gfnote{background:var(--gf-soft);color:var(--gf);padding:10px 12px;border-radius:8px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.empty{color:var(--muted);font-size:14px;padding:12px;border:1px dashed var(--line);border-radius:var(--r)}
+@media (max-width:520px){
+  .day{grid-template-columns:1fr;gap:8px}
+  .mrow{grid-template-columns:1fr;gap:2px}
+  form.add .two{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Household Helper</h1>
+    <p>Fresh, whole-food dinners Monday to Friday, leftovers on the weekend. Everything here is gluten free or has a gluten-free swap noted.</p>
+    <div class="season"><b>In season in WA, Nov</b><span class="chip">asparagus</span><span class="chip">broad beans</span><span class="chip">zucchini</span><span class="chip">strawberries</span><span class="chip">early mangoes</span><span class="chip">stone fruit</span></div>
+  </header>
+  <section class="install" id="installCard">
+    <div class="install-head"><h3>Install Household Helper</h3><button class="linkbtn" id="hideInstall">Hide</button></div>
+    <div class="row" id="installBtnRow" hidden style="margin:8px 0 2px"><button class="btn" id="installBtn">Install app</button><span class="tip">Adds it to your phone like any other app.</span></div>
+    <div class="install-grid">
+      <div class="inst" data-os="ios"><div class="mlab">iPhone</div><ol><li>Open this link in <strong>Safari</strong>.</li><li>Tap the <strong>Share</strong> button (square with an arrow).</li><li>Scroll down and tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li></ol></div>
+      <div class="inst" data-os="android"><div class="mlab">Android</div><ol><li>Open this link in <strong>Chrome</strong>.</li><li>Tap the <strong>⋮</strong> menu in the top corner.</li><li>Tap <strong>Add to Home screen</strong> (or <strong>Install app</strong>), then <strong>Add</strong>.</li></ol></div>
+    </div>
+    <p class="tip">Once installed, always open it from the app icon. Everything you change is saved on this phone only, and on iPhone the app keeps its data separate from Safari. Use Back up at the bottom of the page now and then.</p>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-week" aria-selected="true" data-view="week">This week</button>
+    <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
+    <button role="tab" id="tab-ideas" aria-selected="false" data-view="ideas">Breakfast, lunch &amp; snacks</button>
+    <button role="tab" id="tab-costs" aria-selected="false" data-view="costs">Costs &amp; shopping</button>
+    <button role="tab" id="tab-household" aria-selected="false" data-view="household">Household</button>
+    <button role="tab" id="tab-add" aria-selected="false" data-view="add">Add our recipe</button>
+  </nav>
+
+  <main>
+    <section id="view-week">
+      <h2>4-week plan</h2>
+      <div class="qbar"><input type="search" class="q" id="q-week" data-q="week" placeholder="Search this week, e.g. chicken" autocomplete="off" aria-label="Search this week, e.g. chicken"><span class="qcount" id="qc-week"></span></div>
+      <p class="sub">Four rotating weeks of dinners for when you're home. While you're away on swing, home reheats freezer meals you batch cook the Sunday before you fly out. Swap any home dinner from the library.</p>
+      <div class="weeknav">
+        <button class="btn ghost" id="prevWeek" aria-label="Previous week">←</button>
+        <div class="wk"><div id="weekLabel" class="wl"></div><div id="weekRoster" class="wr"></div></div>
+        <button class="btn ghost" id="nextWeek" aria-label="Next week">→</button>
+      </div>
+      <p class="status" id="saveStatus">Loading your saved plan…</p>
+      <div class="days" id="days"></div>
+      <div class="weekcost" id="weekCost"></div>
+    </section>
+
+    <section id="view-recipes" hidden>
+      <h2>Recipe library</h2>
+      <div class="qbar"><input type="search" class="q" id="q-recipes" data-q="recipes" placeholder="Search recipes, e.g. salmon, soup" autocomplete="off" aria-label="Search recipes, e.g. salmon, soup"><span class="qcount" id="qc-recipes"></span></div>
+      <p class="sub">Web recipes open on the original site. Our own recipes open right here.</p>
+      <div class="filters" id="filters"></div>
+      <div class="grid" id="recipeGrid"></div>
+    </section>
+
+    <section id="view-ideas" hidden>
+      <h2>Quick ideas</h2>
+      <div class="qbar"><input type="search" class="q" id="q-ideas" data-q="ideas" placeholder="Search ideas and swaps, e.g. eggs, pasta" autocomplete="off" aria-label="Search ideas and swaps, e.g. eggs, pasta"><span class="qcount" id="qc-ideas"></span></div>
+      <p class="sub">Simple, no-recipe-needed options. GF means safe as written; check labels on packaged items.</p>
+      <div class="ideas" id="ideas"></div>
+      <section style="margin-top:16px" class="ideas"><section>
+        <h3>Gluten-free swaps</h3>
+        <div class="tablewrap"><table class="swaps">
+          <thead><tr><th>Instead of</th><th>Use</th></tr></thead>
+          <tbody id="swapRows"></tbody>
+        </table></div>
+      </section></section>
+    </section>
+
+    <section id="view-costs" hidden>
+      <h2>Costs &amp; online shopping</h2>
+      <div class="qbar"><input type="search" class="q" id="q-costs" data-q="costs" placeholder="Search the order list and prices, e.g. milk" autocomplete="off" aria-label="Search the order list and prices, e.g. milk"><span class="qcount" id="qc-costs"></span></div>
+      <p class="sub">Estimated cost of each week's meals, an online order list sorted by aisle, and the cheapest way to get it delivered on your roster. Prices are estimates; update them from your receipts below.</p>
+      <div class="weeknav">
+        <button class="btn ghost" id="costPrev" aria-label="Previous week">←</button>
+        <div class="wk"><div id="costWeekLabel" class="wl"></div><div id="costWeekRoster" class="wr"></div></div>
+        <button class="btn ghost" id="costNext" aria-label="Next week">→</button>
+      </div>
+      <div class="stats" id="costSummary"></div>
+      <p class="tip" id="costNote"></p>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Online order list</h3><div class="filters seg" id="storeToggle" aria-label="Store for Find links"></div></div>
+        <p class="tip">Tap <strong>Find</strong> to search the item in the online shop, add it to your trolley, then tick it here. Ticks are saved on this device. With the Coles or Woolworths app installed, Find opens the search in the app.</p>
+        <div id="cartBody"></div>
+      </div>
+
+      <div class="homelink" id="homeLink"></div>
+
+      <div class="panel">
+        <h3>Cheapest way to order</h3>
+        <p class="tip">Based on your roster: one order each home week, plus one for home each away week, about 52 orders a year.</p>
+        <div class="tablewrap"><table class="swaps opts"><thead><tr><th>Option</th><th>Fee</th><th class="num">Delivery per year</th></tr></thead><tbody id="optRows"></tbody></table></div>
+        <div class="reco">
+          <strong>Recommended: Woolworths Delivery Unlimited, annual plan.</strong>
+          <ul>
+            <li>At about 52 orders a year it costs $119, against roughly $364 paying per order at Coles or $572 at Woolworths. Join before 2 December to get the half-price $74.50 offer if it's still running.</li>
+            <li>Keep every order at $75 or more for $0 delivery. If a week comes in under, add pantry items or merge it with the next week.</li>
+            <li>Book Monday to Saturday slots; Sundays and public holidays add $2.</li>
+            <li>On swing, place the home order from work for delivery at home.</li>
+            <li>Most recipes here come from Woolworths, so the ingredients match their range.</li>
+          </ul>
+          <p class="tip">Fees checked 19 Nov 2026 from Woolworths, CHOICE and ShopBack. Check them at checkout, as they change often.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>This week's dinners</h3>
+        <div class="tablewrap"><table class="swaps"><thead><tr><th>Day</th><th>Dinner</th><th class="num">Per serve</th><th class="num">To cook</th></tr></thead><tbody id="dinnerCosts"></tbody></table></div>
+        <p class="tip">×2 means cook double for weekend leftovers.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Next 8 weeks</h3>
+        <div class="ahead" id="aheadRows"></div>
+        <p class="tip" id="aheadTotal"></p>
+      </div>
+
+      <details class="panel prices">
+        <summary><h3>Update prices</h3><span class="tip">Change any price to match your receipt. Every list and total updates.</span></summary>
+        <div class="tablewrap"><table class="swaps"><thead><tr><th>Item</th><th class="num">Price</th><th></th></tr></thead><tbody id="priceRows"></tbody></table></div>
+        <div class="row"><button class="btn ghost" id="resetPrices">Reset to estimates</button><span class="tip" id="priceMsg"></span></div>
+      </details>
+    </section>
+
+    <section id="view-household" hidden>
+      <div class="panel-head"><h2>Household &amp; personal care</h2><span class="tip" id="homeCount"></span></div>
+      <div class="qbar"><input type="search" class="q" id="q-household" data-q="household" placeholder="Search household items, e.g. shampoo" autocomplete="off" aria-label="Search household items, e.g. shampoo"><span class="qcount" id="qc-household"></span></div>
+      <div class="panel-head" style="margin-top:6px"><span class="tip">Find opens the item at</span><div class="filters seg" id="homeStoreToggle" aria-label="Store for Find links"></div></div>
+        <p class="tip">Tap anything you're running low on to add it to this order. It stays on until you clear it after ordering. These count toward the $75 free-delivery minimum.</p>
+        <div class="scanbar">
+          <button class="btn" id="scanBtn">Scan a barcode</button>
+          <button class="btn ghost" id="typeBarcode">Type a barcode</button>
+          <input type="file" id="scanInput" accept="image/*" capture="environment" hidden>
+          <span class="tip" id="homeMsg"></span>
+        </div>
+        <p class="tip">Scan opens your camera. Fill the frame with the barcode and the numbers under it, keep it flat and in focus. The first time, check the name and price; after that, a scan adds it straight to the order.</p>
+        <div id="homeBody"></div>
+      <div class="row" style="margin-top:18px"><button class="btn ghost" data-view="costs">See it in the order list →</button></div>
+    </section>
+
+    <section id="view-add" hidden>
+      <h2>Add our recipe</h2>
+      <p class="sub">Family favourites, or a recipe you found online. It joins the library and can go into the week.</p>
+      <form class="add" id="addForm">
+        <label>Recipe name<input id="f-title" required placeholder="e.g. Dad's chicken and veg tray bake"></label>
+        <div class="two">
+          <label>Meal<select id="f-type"><option value="dinner">Dinner</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="snack">Snack</option></select></label>
+          <label>Time<input id="f-time" placeholder="e.g. 35 min"></label>
+        </div>
+        <label>Rough cost for 2 serves <span style="font-weight:400">(optional, in dollars)</span><input id="f-cost" type="number" step="0.5" min="0" inputmode="decimal" placeholder="e.g. 14"></label>
+        <label>Ingredients <span style="font-weight:400">(one per line)</span><textarea id="f-ing" placeholder="500g chicken thighs&#10;2 zucchini&#10;1 tbsp olive oil"></textarea></label>
+        <label>Method <span style="font-weight:400">(one step per line)</span><textarea id="f-method" placeholder="Heat oven to 200°C&#10;Toss veg in oil…"></textarea></label>
+        <label>Link <span style="font-weight:400">(optional, if it came from a website)</span><input id="f-url" type="url" placeholder="https://"></label>
+        <label>Gluten-free note<input id="f-gf" placeholder="e.g. use tamari instead of soy sauce"></label>
+        <label class="check"><input type="checkbox" id="f-left"> Good for leftovers</label>
+        <div class="row"><button class="btn" type="submit" id="addBtn">Add to library</button><span class="tip" id="addMsg"></span></div>
+      </form>
+      <h2 style="font-size:18px">Our recipes</h2>
+      <div class="qbar"><input type="search" class="q" id="q-add" data-q="add" placeholder="Search our recipes" autocomplete="off" aria-label="Search our recipes"><span class="qcount" id="qc-add"></span></div>
+      <div class="grid" id="oursGrid"></div>
+    </section>
+  </main>
+  <details class="panel backup" id="backupPanel">
+    <summary><h3>Back up &amp; restore</h3><span class="tip">Your plan changes, household list, scanned items, recipes and prices live on this phone. Back them up so they're not lost.</span></summary>
+    <div class="row" style="margin-top:10px"><button class="btn" id="copyBackup">Copy backup</button><span class="tip" id="backupMsg"></span></div>
+    <p class="tip">Paste the copied backup into Notes or send it to yourself. To restore, paste it below.</p>
+    <label class="restore"><span class="mlab">Paste a backup to restore</span><textarea id="restoreText" placeholder='{"plan/rotation": …}'></textarea></label>
+    <div class="row"><button class="btn ghost" id="restoreBtn">Restore from backup</button><span class="tip" id="restoreMsg"></span></div>
+    <p class="tip"><button class="linkbtn" id="showInstall">Show Home Screen steps again</button></p>
+  </details>
+</div>
+
+<dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
+
+<script>
+/* ---------- Phone storage: everything is saved in this phone's browser ---------- */
+const LS_KEY = "household-helper-data-v1";
+const localDb = (() => {
+  let store = {};
+  try{ store = JSON.parse(localStorage.getItem(LS_KEY) || "{}") || {}; }catch{ store = {}; }
+  const listeners = new Set();
+  const clone = v => JSON.parse(JSON.stringify(v));
+  const rid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  const meta = {fromCache:false, hasPendingWrites:false};
+  const snap = path => ({id: path.split("/").pop(), exists: path in store, data: () => store[path] ? clone(store[path]) : undefined, metadata: meta});
+  const inColl = (coll, key) => key.startsWith(coll + "/") && !key.slice(coll.length + 1).includes("/");
+  function persist(){
+    try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }
+    catch{ throw {code:"unavailable", message:"Phone storage is full or blocked"}; }
+    setTimeout(() => listeners.forEach(l => l.fire()), 0);
+  }
+  function querySnap(coll, order){
+    let docs = Object.keys(store).filter(k => inColl(coll, k)).map(snap);
+    if (order){ const [f, dir] = order; docs.sort((a,b) => { const x = a.data()[f], y = b.data()[f]; const c = x < y ? -1 : x > y ? 1 : 0; return dir === "desc" ? -c : c; }); }
+    return {docs, size: docs.length, empty: !docs.length, docChanges: () => [], metadata: meta};
+  }
+  function listen(fire){ const l = {fire}; listeners.add(l); setTimeout(fire, 0); return () => listeners.delete(l); }
+  function docRef(path){
+    return {
+      id: path.split("/").pop(), path,
+      get: async () => snap(path),
+      set: async d => { store[path] = clone(d); persist(); },
+      update: async d => { if (!(path in store)) throw {code:"invalid_argument"}; store[path] = {...store[path], ...clone(d)}; persist(); },
+      delete: async () => { delete store[path]; persist(); },
+      onSnapshot: (cb) => listen(() => cb(snap(path))),
+      collection: p => collRef(path + "/" + p)
+    };
+  }
+  function query(coll, order){
+    return {
+      orderBy: (f, dir) => query(coll, [f, dir || "asc"]),
+      where: () => query(coll, order), limit: () => query(coll, order),
+      get: async () => querySnap(coll, order),
+      onSnapshot: (cb) => listen(() => cb(querySnap(coll, order)))
+    };
+  }
+  function collRef(path){
+    return Object.assign(query(path), {
+      path,
+      doc: id => docRef(path + "/" + (id || rid())),
+      add: async d => { const r = docRef(path + "/" + rid()); await r.set(d); return r; }
+    });
+  }
+  return {
+    doc: docRef, collection: collRef,
+    _export: () => clone(store),
+    _import: data => { store = clone(data); persist(); }
+  };
+})();
+function storageWorks(){
+  try{ const k = "hh-probe"; localStorage.setItem(k, "1"); localStorage.removeItem(k); return true; }catch{ return false; }
+}
+
+const BUILTIN = [
+  {id:"gai-yang",type:"dinner",title:"Thai grilled chicken (Gai Yang)",source:"RecipeTin Eats",url:"https://www.recipetineats.com/thai-grilled-chicken-gai-yang/",time:"Marinate + 30 min",left:true,key:["chicken thighs","garlic, coriander, lemongrass","fish sauce","jasmine rice","cucumber salad"],gf:"Check the fish sauce and any soy or oyster sauce is labelled gluten free, or use tamari."},
+  {id:"fish-cakes",type:"dinner",title:"Healthier Thai fish cakes",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/healthier-thai-fish-cakes",time:"35 min",left:false,key:["white fish fillets","red curry paste","green beans","kaffir lime","salad greens"],gf:"Listed as a gluten-free recipe. Check the curry paste label."},
+  {id:"beef-bean-rice",type:"dinner",title:"Spiced beef & green bean rice",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/healthier-spiced-beef-and-green-bean-rice",time:"30 min",left:true,key:["lean beef mince","green beans","brown rice","spices","fresh herbs"],gf:"Listed as gluten free. Use a GF stock if stock is called for."},
+  {id:"lentil-soup",type:"dinner",title:"Thai red lentil soup",source:"RecipeTin Eats",url:"https://www.recipetineats.com/thai-red-lentil-soup/",time:"35 min",left:true,key:["red lentils","coconut milk","red curry paste","carrot, onion","lime"],gf:"Naturally GF. Check curry paste and stock labels. Serve with GF bread or rice."},
+  {id:"jerk-chicken",type:"dinner",title:"Jerk chicken with pineapple salsa",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/jerk-chicken-with-pineapple-salsa",time:"40 min",left:true,key:["chicken","jerk seasoning","fresh pineapple","red onion, chilli","rice or salad"],gf:"Listed as gluten free. Check the jerk seasoning is GF."},
+  {id:"roast-chicken",type:"dinner",title:"French roast chicken (Poulet Rôti)",source:"RecipeTin Eats",url:"https://www.recipetineats.com/poulet-roti-french-roast-chicken/",time:"1 hr 20",left:true,key:["whole chicken","butter, garlic, thyme","lemon","roast veg"],gf:"Naturally GF. If making gravy, thicken with cornflour, not plain flour."},
+  {id:"meatball-zucchini",type:"dinner",title:"Moroccan spiral meatball zucchini bake",source:"RecipeTin Eats",url:"https://www.recipetineats.com/moroccan-spiral-meatball-zucchini-bake/",time:"1 hr",left:true,key:["beef or lamb mince","zucchini","Moroccan spices","tomato"],gf:"Tagged gluten free. Check breadcrumbs aren't used, or swap in GF crumbs."},
+  {id:"cauli-nachos",type:"dinner",title:"Cauliflower nachos",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/healthier-cauliflower-nachos",time:"40 min",left:false,key:["cauliflower","black beans","tomato salsa","avocado","cheese"],gf:"Listed as gluten free. Check the taco seasoning label."},
+  {id:"stuffed-capsicum",type:"dinner",title:"Capsicums stuffed with brown rice salad",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/healthier-grilled-capsicums-stuffed-with-brown-rice-salad",time:"45 min",left:true,key:["capsicums","brown rice","herbs","feta","nuts"],gf:"Listed as gluten free."},
+  {id:"sweet-potato-soup",type:"dinner",title:"Spiced sweet potato & lentil soup",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/healthier-spiced-sweet-potato-and-lentil-soup",time:"40 min",left:true,key:["sweet potato","lentils","spices","GF stock"],gf:"Listed as gluten free. Use GF stock."},
+  {id:"beet-quiche",type:"dinner",title:"Beetroot & feta quiche, sweet potato crust",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipes/beetroot-and-feta-quiche-with-sweet-potato-crust",time:"1 hr",left:true,key:["eggs","beetroot","feta","sweet potato (the crust)","spinach"],gf:"The sweet potato crust replaces pastry, so it's GF. Great cold for lunch."},
+  {id:"halloumi-kale",type:"dinner",title:"Crispy shredded halloumi & kale salad",source:"RecipeTin Eats",url:"https://www.recipetineats.com/crispy-shredded-halloumi-salad-with-kale/",time:"25 min",left:false,key:["halloumi","kale","seasonal veg","lemon dressing"],gf:"Tagged gluten free."},
+  {id:"salmon-skewers",type:"dinner",title:"Salmon & zucchini skewers",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10557/salmon-and-zucchini-skewers",time:"30 min",left:false,key:["salmon fillets","zucchini","lemon, herbs","rice or salad"],gf:"Listed as gluten free."},
+  {id:"bolognese",type:"dinner",title:"Spaghetti bolognese (GF pasta)",source:"RecipeTin Eats",url:"https://www.recipetineats.com/spaghetti-bolognese/",time:"1 hr",left:true,key:["beef mince","carrot, celery, onion","crushed tomatoes","GF spaghetti","parmesan"],gf:"Cook GF spaghetti for everyone, or a separate pot for anyone avoiding gluten. Use GF stock and check the Worcestershire sauce. Freezes well."},
+  {id:"cauli-risotto",type:"dinner",title:"Cauliflower, pea & mint risotto",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10455/cauliflower-pea-and-mint-risotto",time:"40 min",left:true,key:["arborio rice","cauliflower","peas","mint","parmesan"],gf:"Listed as gluten free. Use GF stock."},
+  {id:"schnitzel",type:"dinner",title:"Healthier chicken schnitzel",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/11124/healthier-chicken-schnitzel",time:"35 min",left:false,key:["chicken breast","GF breadcrumbs","egg","salad or roast veg"],gf:"Listed as gluten free. Make sure the crumbs are GF, or use crushed GF corn flakes."},
+  {id:"thai-beef-cups",type:"dinner",title:"Thai beef lettuce cups",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/8829/thai-beef-lettuce-cups",time:"25 min",left:false,key:["beef mince","lettuce cups","lime, chilli, herbs","rice"],gf:"Listed as gluten free. Check fish sauce and any soy sauce."},
+  {id:"falafel-wraps",type:"dinner",title:"GF falafel wraps, chilli & lime dressing",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10346/gluten-free-falafel-wraps-with-chilli-lime-dressing",time:"40 min",left:false,key:["chickpeas","herbs, spices","GF wraps","salad","yoghurt dressing"],gf:"Written as gluten free, including the wraps."},
+  {id:"green-noodle-curry",type:"dinner",title:"Green noodle curry",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10569/green-noodle-curry",time:"30 min",left:true,key:["green curry paste","coconut milk","rice noodles","greens","chicken or tofu"],gf:"Listed as gluten free. Rice noodles are GF; check the curry paste."},
+  {id:"pork-chops",type:"dinner",title:"Baked pork chops",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/8748/baked-pork-chops",time:"35 min",left:false,key:["pork chops","herbs","roast veg or salad"],gf:"Listed as gluten free."},
+  {id:"kaleslaw-chicken",type:"dinner",title:"Chicken & kaleslaw salad",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10560/easy-chicken-kaleslaw-salad",time:"20 min",left:true,key:["chicken","kale, cabbage","carrot","dressing"],gf:"Listed as gluten free. Leftovers make a good school lunch."},
+  {id:"enchilada-traybake",type:"dinner",title:"Zucchini enchilada traybake",source:"Woolworths",url:"https://www.woolworths.com.au/shop/recipedetail/10386/zucchini-enchilada-tray-bake",time:"45 min",left:true,key:["zucchini","beans or mince","enchilada sauce","cheese"],gf:"Listed as gluten free. Check the enchilada sauce label."},
+  {id:"rice-paper-rolls",type:"lunch",title:"Lemongrass chicken rice paper rolls",source:"RecipeTin Eats",url:"https://www.recipetineats.com/lemongrass-chicken-rice-paper-rolls/",time:"40 min",left:false,key:["chicken","rice paper","vermicelli","lettuce, herbs","dipping sauce"],gf:"Rice paper and rice vermicelli are GF. Use tamari or GF hoisin in the sauce."},
+  {id:"zucchini-muffins",type:"snack",title:"Cheesy zucchini muffins",source:"RecipeTin Eats",url:"https://www.recipetineats.com/cheesy-zucchini-muffins/",time:"35 min",left:true,key:["zucchini","cheese","eggs","flour"],gf:"Tagged gluten free on the site. Confirm the flour used is a GF blend."}
+];
+
+/* 4-week dinner rotation (Mon–Fri) for the weeks Dad is home */
+const ROTATION = [
+  {mon:"gai-yang",tue:"fish-cakes",wed:"beef-bean-rice",thu:"lentil-soup",fri:"jerk-chicken"},
+  {mon:"salmon-skewers",tue:"bolognese",wed:"cauli-risotto",thu:"schnitzel",fri:"thai-beef-cups"},
+  {mon:"roast-chicken",tue:"falafel-wraps",wed:"meatball-zucchini",thu:"green-noodle-curry",fri:"pork-chops"},
+  {mon:"kaleslaw-chicken",tue:"sweet-potato-soup",wed:"enchilada-traybake",thu:"stuffed-capsicum",fri:"beet-quiche"}
+];
+const DAYS = [["mon","Monday"],["tue","Tuesday"],["wed","Wednesday"],["thu","Thursday"],["fri","Friday"],["sat","Saturday"],["sun","Sunday"]];
+/* Freezer meals cooked on batch day, reheated while Dad is away */
+const FREEZER = ["bolognese","lentil-soup","meatball-zucchini","sweet-potato-soup","enchilada-traybake","beef-bean-rice"];
+/* Quick cooks for away days when the freezer is empty */
+const EASY = ["kaleslaw-chicken","salmon-skewers","thai-beef-cups","falafel-wraps","schnitzel"];
+
+/* Roster: 2 wks on, 4 off, 2 on, 2 off (repeats every 10 weeks). This swing started Wed 11 Nov 2026. */
+const DAY_MS = 86400000;
+const ROSTER_START = Date.UTC(2026,10,11);
+const ROSTER = [["away",14],["home",28],["away",14],["home",14]];
+const CYCLE = ROSTER.reduce((a,[,n])=>a+n,0);
+const PLAN_START = Date.UTC(2026,10,23); // Mon 23 Nov = rotation week 1
+const FREEZER_FROM = Date.UTC(2026,10,25); // first batch cook possible once home
+function utc(d){ return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); }
+function status(t){
+  let i = Math.floor((t-ROSTER_START)/DAY_MS); i = ((i%CYCLE)+CYCLE)%CYCLE;
+  for (const [s,n] of ROSTER){ if (i<n) return s; i-=n; }
+  return "home";
+}
+function nextAwayStart(t){ // first away day strictly after a home day t, within 60 days
+  for (let k=1;k<=60;k++){ const x=t+k*DAY_MS; if (status(x)==="away" && status(x-DAY_MS)==="home") return x; }
+  return null;
+}
+
+const IDEAS = {
+  breakfast:[
+    ["Greek yoghurt, berries & GF muesli","Strawberries are in season. Check the muesli is GF oat-free or uses certified GF oats."],
+    ["Eggs on GF toast with spinach & avo","Scrambled, poached or boiled. Swap toast for sweet potato rounds."],
+    ["Overnight chia pudding","Chia, milk, a little honey. Top with mango or passionfruit."],
+    ["Veggie omelette","Zucchini, capsicum, cherry tomato, feta."],
+    ["Banana & berry smoothie","Milk or yoghurt, frozen banana, berries, spoon of peanut butter."],
+    ["Buckwheat pancakes","Buckwheat is gluten free despite the name. Top with fruit and yoghurt."]
+  ],
+  lunch:[
+    ["Dinner leftovers","The easiest lunch of all. Pack straight into containers after dinner."],
+    ["Chicken, quinoa & roast veg bowl","Use Monday's chicken or a supermarket roast chook."],
+    ["Tuna & bean salad","Tinned tuna, cannellini beans, cucumber, tomato, olive oil and lemon."],
+    ["Rice paper rolls","Fill with leftover chicken, lettuce, carrot, herbs. Packs well."],
+    ["GF wrap with hummus & salad","Add leftover chicken or a boiled egg."],
+    ["Frittata slice","Bake a tray on Sunday, slice for the week. Keeps 3–4 days in the fridge."]
+  ],
+  snack:[
+    ["Apple or pear with peanut butter",""],
+    ["Veg sticks & hummus","Carrot, cucumber, capsicum, snow peas."],
+    ["Rice cakes or corn thins","Top with avocado, cottage cheese or ricotta and honey."],
+    ["Boiled eggs","Cook six at once. Keeps 5 days in the fridge, shell on."],
+    ["Mixed nuts & seeds","Small handful. Not for school if there's a nut-free rule."],
+    ["Yoghurt cup with fruit","Plain Greek yoghurt with whatever fruit's in season."],
+    ["Popcorn","Plain kernels, air-popped or in a pot with a little oil. Naturally GF."],
+    ["Bliss balls","Dates, oats (certified GF) or almond meal, cocoa, coconut."]
+  ]
+};
+const DAY_BL = {
+  mon:[0,1], tue:[2,0], wed:[3,1], thu:[4,0], fri:[5,1]
+};
+const SWAPS = [
+  ["Pasta","GF pasta (rice, corn or legume), zucchini noodles, rice noodles"],
+  ["Bread & wraps","GF bread or wraps, lettuce cups, corn tortillas"],
+  ["Soy sauce","Tamari, or soy sauce labelled gluten free"],
+  ["Breadcrumbs","GF crumbs, almond meal, crushed corn flakes (check GF)"],
+  ["Plain flour to thicken","Cornflour (check it's maize, labelled GF) or arrowroot"],
+  ["Couscous","Quinoa or brown rice"],
+  ["Regular oats","Certified GF oats, or quinoa or buckwheat flakes"],
+  ["Stock cubes","Stock labelled gluten free"],
+  ["Beer in marinades","GF beer or extra citrus"]
+];
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let ours = [];      // from db
+let swaps = {};     // {"w1-mon": recipeId} from db
+const todayUTC = (()=>{const n=new Date(); return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());})();
+let weekIdx = Math.max(0, Math.floor((todayUTC-PLAN_START)/(7*DAY_MS)));
+let db = null;
+let filter = "all";
+
+const all = () => [...BUILTIN, ...ours];
+const byId = id => all().find(r => r.id === id);
+
+const fmt = t => new Date(t).toLocaleDateString("en-AU",{day:"numeric",month:"short",timeZone:"UTC"});
+const rotOf = w => ((w%4)+4)%4;
+
+function dayPlan(w, i){
+  const t = PLAN_START + (w*7+i)*DAY_MS;
+  const k = DAYS[i][0], rot = rotOf(w), st = status(t);
+  const [b,l] = DAY_BL[["mon","tue","wed","thu","fri"][i%5]];
+  const bi = (b + w) % IDEAS.breakfast.length, li = (l + w*2) % IDEAS.lunch.length;
+  const out = {t, k, st, rot, breakfast: IDEAS.breakfast[bi][0], lunch: IDEAS.lunch[li][0]};
+  if (st === "away"){
+    const n = Math.floor((t-ROSTER_START)/DAY_MS);
+    if (t >= FREEZER_FROM){ out.mode="freezer"; out.dinner = FREEZER[((n%FREEZER.length)+FREEZER.length)%FREEZER.length]; }
+    else { out.mode="easy"; out.dinner = EASY[((n%EASY.length)+EASY.length)%EASY.length]; }
+    out.lunch = "Dinner leftovers or a GF wrap with hummus & salad";
+  } else if (i < 5){
+    out.mode="cook"; out.dinner = swaps[`w${rot+1}-${k}`] || ROTATION[rot][k];
+  } else {
+    out.mode="leftovers";
+  }
+  return out;
+}
+
+function renderWeek(){
+  const dinners = all().filter(r => r.type === "dinner");
+  const opts = id => dinners.map(r => `<option value="${esc(r.id)}"${r.id===id?" selected":""}>${esc(r.title)}${r.ours?" (ours)":""}</option>`).join("");
+  const days = Array.from({length:7}, (_,i)=>dayPlan(weekIdx,i));
+  const rot = rotOf(weekIdx);
+  const home = days.filter(d=>d.st==="home").length;
+  const label = home===7 ? "Home all week" : home===0 ? "Away on swing all week" : `Home ${home} days, away ${7-home}`;
+  document.getElementById("weekLabel").textContent = `Week ${rot+1} of 4 · ${fmt(days[0].t)} – ${fmt(days[6].t)}`;
+  document.getElementById("weekRoster").textContent = label;
+  document.getElementById("prevWeek").disabled = weekIdx <= -2;
+
+  const keepers = days.filter(d=>d.mode==="cook").map(d=>byId(d.dinner)).filter(r=>r && r.left);
+  const half = Math.ceil(keepers.length/2);
+  const leftFor = { sat: keepers.slice(0,half), sun: keepers.slice(half) };
+  const list = a => a.length ? a.map(r=>esc(r.title)).join(" + ") : "Fridge clean-out: omelette or a big salad with whatever's left";
+
+  document.getElementById("days").innerHTML = days.map((d,i) => {
+    const name = DAYS[i][1];
+    const r = d.dinner ? (byId(d.dinner) || byId(ROTATION[d.rot][d.k])) : null;
+    const nextAway = d.st==="home" ? nextAwayStart(d.t) : null;
+    const batch = d.st==="home" && d.k==="sun" && nextAway && nextAway - d.t <= 3*DAY_MS;
+    const cls = d.st==="away" ? "day away" : (d.mode==="leftovers" ? "day weekend" : "day");
+    let dinnerRow = "";
+    if (d.mode==="leftovers"){
+      dinnerRow = `<div class="mrow"><span class="mlab">Dinner</span><span>Leftovers: ${list(leftFor[d.k])}</span></div>`;
+    } else if (r){
+      const tag = d.mode==="freezer" ? '<span class="chip frz">from freezer</span>' : d.mode==="easy" ? '<span class="chip">easy cook</span>' : (r.left?'<span class="chip">cook double</span>':"");
+      dinnerRow = `<div class="mrow"><span class="mlab">Dinner</span><div class="dinner"><span class="t">${esc(r.title)}</span>${tag}${perServe(r)!=null?`<span class="cost">${money(perServe(r))}/serve</span>`:""}<button class="linkbtn" data-open="${esc(r.id)}">Recipe</button></div></div>`;
+      if (d.mode==="cook") dinnerRow += `<div class="mrow"><span class="mlab">Swap</span><select class="swap" id="swap-w${d.rot+1}-${d.k}" data-slot="w${d.rot+1}-${d.k}" aria-label="Swap ${name} dinner">${opts(r.id)}</select></div>`;
+    }
+    const batchRow = batch ? `<div class="mrow"><span class="mlab">Batch cook</span><span class="tip"><strong>You fly out ${fmt(nextAway)}.</strong> Cook double batches of ${FREEZER.map(id=>esc(byId(id).title)).join(", ")}. Portion for two, label with the date, freeze. That covers the swing.</span></div>` : "";
+    return `<article class="${cls}">
+      <div><div class="dn">${name.slice(0,3)}</div><div class="dd">${fmt(d.t)}</div>${d.st==="away"?'<div class="aw">away</div>':""}</div>
+      <div class="meals">
+        <div class="mrow"><span class="mlab">Breakfast</span><span>${esc(d.breakfast)}</span></div>
+        <div class="mrow"><span class="mlab">Lunch</span><span>${esc(d.lunch)}</span></div>
+        ${dinnerRow}${batchRow}
+      </div>
+    </article>`;
+  }).join("");
+  renderCosts();
+  const wb = weekBasket(weekIdx, true);
+  document.getElementById("weekCost").innerHTML = `<span>Estimated groceries this week: <strong>${money0(wb.checkout)}</strong></span><button class="btn ghost" data-view="costs">Shopping list &amp; costs →</button>`;
+}
+
+/* ---------- Costs & online shopping ---------- */
+/* Estimated Woolworths online prices, Perth, Nov 2026. Editable on the Costs tab. keep = pantry item that lasts several weeks */
+const PRODUCTS = {
+  chThigh:["Chicken thigh fillets","1kg",15.00,"meat"], chBreast:["Chicken breast fillets","1kg",13.00,"meat"],
+  chWhole:["Whole chicken","~1.6kg",11.00,"meat"], beefMince:["Lean beef mince","500g",9.00,"meat"],
+  salmon:["Salmon fillets","2 pack, 250g",12.00,"meat"], whiteFish:["White fish fillets (hoki or basa)","400g",9.00,"meat"],
+  porkChops:["Pork loin chops","500g",9.50,"meat"], tuna:["Tuna in springwater","3 x 95g",5.50,"pantry"],
+  halloumi:["Halloumi","180g",6.00,"dairy"], feta:["Feta","200g",5.00,"dairy"], parmesan:["Parmesan","125g",6.00,"dairy"],
+  cheese:["Grated tasty cheese","500g",9.00,"dairy"], eggs:["Free range eggs","12 pack",7.00,"dairy"],
+  yoghurt:["Greek yoghurt","1kg",7.00,"dairy"], milk:["Milk","2L",3.40,"dairy"], butter:["Butter","250g",5.50,"dairy"],
+  gfPasta:["Gluten free spaghetti","500g",3.50,"gf"], gfBread:["Gluten free bread","loaf",7.00,"gf"],
+  gfWraps:["Gluten free wraps","6 pack",6.00,"gf"], gfCrumbs:["Gluten free breadcrumbs","300g",5.00,"gf"],
+  riceNoodles:["Rice noodles","375g",3.00,"gf"], ricePaper:["Rice paper sheets","pack",3.00,"gf"],
+  riceCakes:["Corn thins or rice cakes","pack",3.00,"gf"], gfMuesli:["Gluten free muesli","500g",7.00,"gf"],
+  coconutMilk:["Coconut milk","400ml",2.00,"pantry"], crushedTom:["Crushed tomatoes","400g tin",1.20,"pantry"],
+  gfStock:["Gluten free stock","1L",3.50,"pantry"], redLentils:["Red lentils","500g",3.00,"pantry"],
+  lentilsTin:["Brown lentils","400g tin",1.50,"pantry"], chickpeas:["Chickpeas","400g tin",1.20,"pantry"],
+  blackBeans:["Black beans","400g tin",1.60,"pantry"], enchilada:["Enchilada sauce (GF)","jar",4.00,"pantry"],
+  hummus:["Hummus","200g",4.00,"dairy"],
+  jasmine:["Jasmine rice","1kg",4.00,"pantry",1], brownRice:["Brown rice","1kg",4.00,"pantry",1], arborio:["Arborio rice","1kg",4.50,"pantry",1],
+  redCurry:["Red curry paste","jar",4.00,"pantry",1], greenCurry:["Green curry paste","jar",4.00,"pantry",1],
+  fishSauce:["Fish sauce (GF)","bottle",4.50,"pantry",1], jerk:["Jerk seasoning (GF)","jar",3.00,"pantry",1],
+  taco:["Taco seasoning (GF)","sachet",2.50,"pantry",1], moroccan:["Moroccan spice mix","jar",4.00,"pantry",1],
+  peanutButter:["Peanut butter","375g",4.50,"pantry",1], peas:["Frozen peas","1kg",3.50,"pantry",1],
+  zucchini:["Zucchini","each",1.30,"produce"], capsicum:["Red capsicum","each",1.90,"produce"],
+  cauliflower:["Cauliflower","whole",5.00,"produce"], sweetPotato:["Sweet potato","each, ~500g",2.00,"produce"],
+  carrots:["Carrots","1kg bag",2.20,"produce"], onions:["Brown onions","1kg bag",3.00,"produce"],
+  garlic:["Garlic","bulb",1.20,"produce"], lemon:["Lemon","each",1.00,"produce"], lime:["Lime","each",0.90,"produce"],
+  cucumber:["Lebanese cucumber","each",1.60,"produce"], lettuce:["Cos lettuce","each",3.00,"produce"],
+  spinach:["Baby spinach","120g",3.50,"produce"], kale:["Kale","bunch",3.50,"produce"], cabbage:["Coleslaw mix","400g",4.00,"produce"],
+  beetroot:["Beetroot","bunch",4.50,"produce"], beans:["Green beans","300g",3.50,"produce"], pineapple:["Pineapple","each",4.00,"produce"],
+  avocado:["Avocado","each",2.00,"produce"], tomatoes:["Cherry tomatoes","250g",3.50,"produce"], herbs:["Fresh herbs (coriander, mint or parsley)","bunch",3.50,"produce"],
+  celery:["Celery","half",3.00,"produce"], potatoes:["Washed potatoes","2kg bag",5.00,"produce"], salad:["Mixed salad leaves","120g",4.00,"produce"],
+  bananas:["Bananas","1kg",4.00,"produce"], berries:["Strawberries","250g",4.00,"produce"], apples:["Apples","1kg bag",5.00,"produce"]
+};
+/* Packs used per recipe, for 2 serves */
+const USES = {
+  "gai-yang":{chThigh:.5,garlic:.3,herbs:1,fishSauce:.1,jasmine:.2,cucumber:1,lime:1},
+  "fish-cakes":{whiteFish:1,redCurry:.3,beans:.5,eggs:.08,salad:.5,lime:1,herbs:.5},
+  "beef-bean-rice":{beefMince:1,beans:1,brownRice:.2,onions:.1,herbs:.5,garlic:.2},
+  "lentil-soup":{redLentils:.4,coconutMilk:.5,redCurry:.3,carrots:.2,onions:.1,lime:1,gfStock:.5,gfBread:.25},
+  "jerk-chicken":{chThigh:.5,jerk:.3,pineapple:.5,onions:.1,lime:1,jasmine:.2},
+  "roast-chicken":{chWhole:.5,butter:.15,garlic:.3,lemon:1,potatoes:.25,carrots:.2,herbs:.5},
+  "meatball-zucchini":{beefMince:1,zucchini:2,crushedTom:1,moroccan:.1,onions:.1,gfCrumbs:.1,yoghurt:.1},
+  "cauli-nachos":{cauliflower:.5,blackBeans:1,tomatoes:1,avocado:1,cheese:.2,taco:.5,lime:.5},
+  "stuffed-capsicum":{capsicum:2,brownRice:.15,feta:.5,herbs:.5,lemon:.5,spinach:.3},
+  "sweet-potato-soup":{sweetPotato:2,lentilsTin:1,gfStock:1,onions:.1,garlic:.2,yoghurt:.1,gfBread:.25},
+  "beet-quiche":{eggs:.5,beetroot:.5,feta:.5,sweetPotato:1,spinach:.5},
+  "halloumi-kale":{halloumi:1,kale:.5,tomatoes:.5,lemon:1,chickpeas:.5},
+  "salmon-skewers":{salmon:1,zucchini:2,lemon:1,herbs:.5,salad:.5},
+  "bolognese":{beefMince:1,carrots:.1,celery:.3,onions:.1,crushedTom:1,gfPasta:.5,parmesan:.2,gfStock:.25},
+  "cauli-risotto":{arborio:.3,cauliflower:.5,peas:.15,herbs:.5,parmesan:.3,gfStock:1,onions:.1,butter:.1},
+  "schnitzel":{chBreast:.4,gfCrumbs:.4,eggs:.08,salad:.5,lemon:.5,potatoes:.15},
+  "thai-beef-cups":{beefMince:1,lettuce:1,lime:1,herbs:.5,fishSauce:.1,jasmine:.2,cucumber:.5},
+  "falafel-wraps":{chickpeas:2,herbs:1,gfWraps:.67,salad:.5,yoghurt:.15,lime:1,tomatoes:.5},
+  "green-noodle-curry":{greenCurry:.3,coconutMilk:1,riceNoodles:.5,chThigh:.4,beans:.5,spinach:.3},
+  "pork-chops":{porkChops:1,potatoes:.25,beans:.5,herbs:.25},
+  "kaleslaw-chicken":{chBreast:.4,kale:.5,cabbage:.5,carrots:.1,yoghurt:.1,lemon:.5},
+  "enchilada-traybake":{zucchini:2,blackBeans:1,enchilada:1,cheese:.25,beefMince:.5,avocado:.5},
+  "rice-paper-rolls":{chBreast:.3,ricePaper:.3,riceNoodles:.3,lettuce:.5,herbs:.5,carrots:.1},
+  "zucchini-muffins":{zucchini:2,cheese:.2,eggs:.25}
+};
+/* Breakfast, lunch & snack staples per week */
+const STAPLES_HOME = {bananas:1,berries:2,apples:1,avocado:2,cucumber:2,carrots:.5,spinach:1,lemon:2,yoghurt:1,milk:2,eggs:1,gfBread:1,gfWraps:1,riceCakes:1,gfMuesli:.5,hummus:1,tuna:1,peanutButter:.25};
+const STAPLES_AWAY = {bananas:1,berries:1,apples:1,avocado:1,cucumber:1,spinach:1,yoghurt:1,milk:1,eggs:1,gfBread:1,gfWraps:1,riceCakes:1,hummus:1,tuna:1,gfMuesli:.5};
+const AISLE_NAMES = [["produce","Fruit & veg"],["meat","Meat & fish"],["dairy","Dairy, eggs & fridge"],["gf","Gluten free"],["pantry","Pantry"]];
+const FREE_DELIVERY_MIN = 75;
+
+let priceOverrides = {};   // from db: prices/overrides
+let shopStore = "woolworths";
+try{ shopStore = localStorage.getItem("hh-store") || "woolworths"; }catch{}
+const price = id => (priceOverrides[id] ?? PRODUCTS[id][2]);
+const money = n => "$" + n.toFixed(2);
+const money0 = n => "$" + Math.round(n).toLocaleString("en-AU");
+
+function recipeCost(r){ // cost for 2 serves, or null
+  if (!r) return null;
+  if (r.ours) { const c = parseFloat(r.cost); return isFinite(c) && c>0 ? c : null; }
+  const u = USES[r.id]; if (!u) return null;
+  return Object.entries(u).reduce((a,[p,q]) => a + q*price(p), 0);
+}
+const perServe = r => { const c = recipeCost(r); return c==null ? null : c/2; };
+
+function weekBasket(w, withNeeds){
+  const days = Array.from({length:7}, (_,i)=>dayPlan(w,i));
+  const need = {}; const extras = []; let mealCost = 0, serves = 0, uncosted = [];
+  const add = (r, mult, why) => {
+    if (!r) return;
+    const c = recipeCost(r);
+    if (c!=null){ mealCost += c*mult; } else uncosted.push(r.title);
+    serves += 2*mult;
+    if (r.ours){ String(r.ingredients||"").split("\n").map(x=>x.trim()).filter(Boolean).forEach(x=>extras.push({name:x, for:r.title})); return; }
+    Object.entries(USES[r.id]||{}).forEach(([p,q]) => {
+      need[p] = need[p] || {q:0, for:new Set()}; need[p].q += q*mult; need[p].for.add(why || r.title);
+    });
+  };
+  days.forEach(d => {
+    if (d.mode==="cook"){ const r = byId(d.dinner); add(r, r && r.left ? 2 : 1); }
+    if (d.mode==="easy"){ add(byId(d.dinner), 1); }
+  });
+  const sun = days[6]; const na = sun.st==="home" ? nextAwayStart(sun.t) : null;
+  const batch = !!(na && na - sun.t <= 3*DAY_MS);
+  if (batch) FREEZER.forEach(id => add(byId(id), 2, "Freezer batch"));
+  const homeDays = days.filter(d=>d.st==="home").length;
+  const staples = homeDays >= 4 ? STAPLES_HOME : STAPLES_AWAY;
+  let stapleCost = 0;
+  Object.entries(staples).forEach(([p,q]) => {
+    stapleCost += q*price(p);
+    need[p] = need[p] || {q:0, for:new Set()}; need[p].q += q; need[p].for.add("breakfast, lunch & snacks");
+  });
+  const lines = Object.entries(need).map(([p,v]) => {
+    const [name, pack, , aisle, keep] = PRODUCTS[p];
+    const packs = Math.max(1, Math.ceil(v.q - 0.05));
+    return {id:p, name, pack, aisle, keep:!!keep, packs, unit:price(p), total:packs*price(p), for:[...v.for]};
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+  let homeCost = 0;
+  if (withNeeds) needLines().forEach(nl => {
+    const same = lines.find(l => l.id === nl.id);
+    if (same){ same.packs += nl.packs; same.total = same.packs*same.unit; same.for.push("your list"); }
+    else lines.push(nl);
+    if (nl.aisle === "home") homeCost += nl.total;
+  });
+  lines.sort((a,b)=>a.name.localeCompare(b.name));
+  const checkout = lines.filter(l=>!l.keep).reduce((a,l)=>a+l.total,0);
+  const pantry = lines.filter(l=>l.keep).reduce((a,l)=>a+l.total,0);
+  return {days, lines, extras, batch, homeDays, mealCost, stapleCost, food:mealCost+stapleCost, homeCost, checkout, pantry, serves, uncosted, start:days[0].t};
+}
+
+function searchUrl(name){
+  const q = encodeURIComponent(name.replace(/\s*\(.*?\)\s*/g," ").trim());
+  /* Coles search link: opens in the Coles app when it's installed, otherwise coles.com.au */
+  return shopStore==="coles" ? `https://www.coles.com.au/search/products?q=${q}` : `https://www.woolworths.com.au/shop/search/products?searchTerm=${q}`;
+}
+const storeName = () => shopStore==="coles" ? "Coles" : "Woolworths";
+
+function tickKey(start){ return "hh-cart-" + new Date(start).toISOString().slice(0,10); }
+function loadTicks(start){ try{ return JSON.parse(localStorage.getItem(tickKey(start))||"{}"); }catch{ return {}; } }
+function saveTicks(start, t){ try{ localStorage.setItem(tickKey(start), JSON.stringify(t)); }catch{} }
+
+/* Ordering options: annual delivery cost on the work roster.
+   10-week cycle = 6 home weeks (1 order each) + 4 away weeks (1 order per away week for home) => ~10 orders per 10 weeks */
+const ORDERS_PER_YEAR = 52;
+const OPTIONS = [
+  {name:"Woolworths Delivery Unlimited", fee:"$119 a year (half price, $74.50, until 2 Dec 2026)", yearly:119, note:"$0 delivery on same-day and next-day orders of $75 or more. A $2 fee applies to Sunday and public holiday slots.", best:true},
+  {name:"Coles Plus Delivery", fee:"$19 a month or $199 a year", yearly:199, note:"$0 delivery on orders of $75 or more, plus free Rapid Click & Collect."},
+  {name:"Coles, pay per delivery", fee:"$2 to $11 an order", yearly:7*ORDERS_PER_YEAR, note:"Fee depends on time slot and order size. Minimum order $50; free over $250."},
+  {name:"Woolworths, pay per delivery", fee:"$7 to $15 an order", yearly:11*ORDERS_PER_YEAR, note:"Minimum order $50; free over $250 in some postcodes."},
+  {name:"Click & Collect (either store)", fee:"Low or no fee", yearly:null, note:"Cheapest when you're home, but someone has to collect it while you're away."},
+  {name:"Aldi, in store", fee:"No online shop", yearly:null, note:"CHOICE's March 2026 basket was about 12% cheaper at Aldi than Woolworths ($68.60 vs $77.53). Aldi has no online shop of its own; DoorDash delivery in some areas costs more."}
+];
+
+function renderCosts(){
+  const b = weekBasket(weekIdx, true);
+  const rot = ((weekIdx%4)+4)%4;
+  const ticks = loadTicks(b.start);
+  document.getElementById("costWeekLabel").textContent = `Week ${rot+1} of 4 · ${fmt(b.days[0].t)} – ${fmt(b.days[6].t)}`;
+  document.getElementById("costWeekRoster").textContent = b.homeDays===7 ? "Home all week" : b.homeDays===0 ? "Away on swing all week" : `Home ${b.homeDays} days, away ${7-b.homeDays}`;
+  document.getElementById("costPrev").disabled = weekIdx <= -2;
+  const gap = FREE_DELIVERY_MIN - b.checkout;
+  const perServeAvg = b.serves ? b.mealCost / b.serves : 0;
+  document.getElementById("costSummary").innerHTML = `
+    <div class="stat"><div class="sv">${money0(b.checkout)}</div><div class="sl">Estimated order this week</div></div>
+    <div class="stat"><div class="sv">${b.serves ? money(perServeAvg) : "–"}</div><div class="sl">Average dinner, per serve</div></div>
+    <div class="stat"><div class="sv">${money0(b.stapleCost)}</div><div class="sl">Breakfast, lunch &amp; snacks</div></div>
+    <div class="stat ${gap>0?"warn":"ok"}"><div class="sv">${gap>0 ? "Add "+money0(gap) : "$0"}</div><div class="sl">${gap>0 ? "to reach $75 free delivery" : "delivery with Delivery Unlimited"}</div></div>`;
+  let note = b.batch ? `Includes double batches of the freezer meals for your batch cook on Sunday ${fmt(b.days[6].t)}.`
+    : b.homeDays===0 ? "You're away, so this order is staples for home. Dinners come from the freezer." : "";
+  if (b.homeCost > 0) note += ` Includes ${money(b.homeCost)} of household items.`;
+  if (gap>0) note += ` This order is under $75. Top up with pantry items below, or combine it with next week's order.`;
+  if (b.uncosted.length) note += ` No cost entered for: ${b.uncosted.join(", ")}.`;
+  document.getElementById("costNote").textContent = note.trim();
+
+  const row = l => {
+    const key = l.id;
+    return `<li class="cart-item${ticks[key]?" done":""}">
+      <input type="checkbox" id="cart-${key}" data-cart="${key}"${ticks[key]?" checked":""} aria-label="In cart: ${esc(l.name)}">
+      <div class="ci-main"><label for="cart-${key}" class="iname">${l.packs} × ${esc(l.name)}</label><small>${esc(l.pack)} · ${esc(l.for.join(" · "))}</small></div>
+      <div class="ci-price">${l.unpriced ? "–" : money(l.total)}</div>
+      <a class="ci-link" href="${searchUrl(l.name)}" data-name="${esc(l.name.replace(/\s*\(.*?\)\s*/g,' ').trim())}" target="_blank" rel="noopener" aria-label="Find ${esc(l.name)} at ${storeName()}">Find ↗</a>
+    </li>`;
+  };
+  const groups = AISLE_NAMES.map(([a,label]) => {
+    const list = b.lines.filter(l=>l.aisle===a && !l.keep);
+    if (!list.length) return "";
+    const sub = list.reduce((s,l)=>s+l.total,0);
+    return `<div class="cart-group"><div class="cg-head"><span class="mlab">${label}</span><span class="cg-sub">${money(sub)}</span></div><ul class="cart">${list.map(row).join("")}</ul></div>`;
+  }).join("");
+  const pantry = b.lines.filter(l=>l.keep);
+  const extras = b.extras.length ? `<div class="cart-group"><div class="cg-head"><span class="mlab">From our recipes</span><span class="cg-sub">not priced</span></div><ul class="cart">${b.extras.map((x,i)=>`<li class="cart-item"><span></span><div class="ci-main"><span class="iname">${esc(x.name)}</span><small>${esc(x.for)}</small></div><div class="ci-price">–</div><a class="ci-link" href="${searchUrl(x.name.replace(/^[\d.,/]+\s*(g|kg|ml|l|tbsp|tsp|cups?|x)?\s*/i,""))}" target="_blank" rel="noopener">Find ↗</a></li>`).join("")}</ul></div>` : "";
+  document.getElementById("cartBody").innerHTML = `
+    <div class="cart-groups">${groups}${extras}</div>
+    <details class="pantry-check"><summary>Pantry items used this week (${pantry.length}) · buy only if you've run out · ${money(b.pantry)} if all bought</summary>
+      <ul class="cart">${pantry.map(row).join("")}</ul></details>
+    <div class="cart-total"><span>Estimated total, excluding pantry items</span><strong>${money(b.checkout)}</strong></div>
+    <div class="row"><button class="btn" id="copyCart">Copy list</button><button class="btn ghost" id="clearCart">Untick all</button>${needCount()?'<button class="btn ghost" id="clearNeeds">Order done: clear household &amp; scanned items</button>':""}<span class="tip" id="cartMsg"></span></div>`;
+
+  document.getElementById("storeToggle").innerHTML = ["woolworths","coles"].map(s=>`<button data-store="${s}" aria-pressed="${s===shopStore}">${s==="coles"?"Coles":"Woolworths"}</button>`).join("");
+
+  // dinner costs for this rotation week
+  document.getElementById("dinnerCosts").innerHTML = b.days.filter(d=>d.mode==="cook"||d.mode==="easy").map(d=>{
+    const r = byId(d.dinner); const c = recipeCost(r); const mult = d.mode==="cook" && r && r.left ? 2 : 1;
+    return `<tr><td>${DAYS.find(x=>x[0]===d.k)[1].slice(0,3)}</td><td>${esc(r?r.title:"")}${mult===2?' <span class="chip">×2</span>':""}</td><td class="num">${c==null?"–":money(c/2)}</td><td class="num">${c==null?"–":money(c*mult)}</td></tr>`;
+  }).join("") || `<tr><td colspan="4" class="tip">No dinners to cook this week. It's freezer meals at home.</td></tr>`;
+
+  // upcoming weeks
+  const ahead = Array.from({length:8}, (_,i)=>weekBasket(weekIdx+i));
+  const max = Math.max(...ahead.map(x=>x.checkout), 1);
+  document.getElementById("aheadRows").innerHTML = ahead.map((x,i)=>{
+    const lbl = x.homeDays===7?"home":x.homeDays===0?"away":"mixed";
+    return `<div class="ah"><div class="ah-d">${fmt(x.start)}</div><div class="ah-bar"><span class="bar ${lbl}" style="width:${(x.checkout/max*100).toFixed(1)}%"></span></div><div class="ah-v">${money0(x.checkout)}</div><div class="ah-t">${lbl}${x.batch?" · batch cook":""}</div></div>`;
+  }).join("");
+  const total8 = ahead.reduce((a,x)=>a+x.checkout,0);
+  renderHousehold();
+  document.getElementById("aheadTotal").textContent = `${money0(total8)} over 8 weeks, about ${money0(total8/8)} a week on average.`;
+}
+
+function renderOptions(){
+  document.getElementById("optRows").innerHTML = OPTIONS.map(o=>`<tr class="${o.best?"best":""}"><td><strong>${esc(o.name)}</strong>${o.best?' <span class="chip ours">Best value</span>':""}<small>${esc(o.note)}</small></td><td>${esc(o.fee)}</td><td class="num">${o.yearly==null?"–":"~"+money0(o.yearly)}</td></tr>`).join("");
+}
+
+function renderPriceEditor(){
+  document.getElementById("priceRows").innerHTML = AISLE_NAMES.map(([a,label]) => {
+    const ids = Object.keys(PRODUCTS).filter(id=>PRODUCTS[id][3]===a);
+    return `<tr class="ph"><th colspan="3">${label}</th></tr>` + ids.map(id=>`<tr><td>${esc(PRODUCTS[id][0])}<small>${esc(PRODUCTS[id][1])}</small></td><td class="num"><input type="number" step="0.05" min="0" inputmode="decimal" id="price-${id}" data-price="${id}" value="${price(id).toFixed(2)}" aria-label="Price of ${esc(PRODUCTS[id][0])}"></td><td>${priceOverrides[id]!=null?'<span class="chip ours">yours</span>':""}</td></tr>`).join("");
+  }).join("");
+}
+
+function cartText(){
+  const b = weekBasket(weekIdx, true); const ticks = loadTicks(b.start);
+  const lines = [`${storeName()} order, week of ${fmt(b.start)} (est. ${money(b.checkout)})`];
+  AISLE_NAMES.forEach(([a,label]) => {
+    const list = b.lines.filter(l=>l.aisle===a && !l.keep && !ticks[l.id]);
+    if (list.length){ lines.push("", label.toUpperCase()); list.forEach(l=>lines.push(`- ${l.packs} x ${l.name} (${l.pack})`)); }
+  });
+  if (b.extras.length){ lines.push("", "FROM OUR RECIPES"); b.extras.forEach(x=>lines.push("- "+x.name)); }
+  return lines.join("\n");
+}
+
+/* With Coles selected, Find also copies the item name, so it can be pasted into the Coles app search if the link opens in a browser */
+document.addEventListener("click", e => {
+  const a = e.target.closest("a.ci-link, a.hfind"); if (!a || shopStore !== "coles" || !a.dataset.name) return;
+  const msg = document.getElementById(a.classList.contains("hfind") ? "homeMsg" : "cartMsg");
+  try{
+    navigator.clipboard.writeText(a.dataset.name).then(
+      () => { if (msg) msg.textContent = `Copied "${a.dataset.name}". If a browser opens, switch to the Coles app and paste it into search.`; },
+      () => {}
+    );
+  }catch{}
+});
+
+let priceSaveTimer = null;
+document.addEventListener("change", e => {
+  const c = e.target;
+  if (c.dataset && c.dataset.cart){
+    const start = weekBasket(weekIdx).start, t = loadTicks(start);
+    if (c.checked) t[c.dataset.cart] = 1; else delete t[c.dataset.cart];
+    saveTicks(start, t); c.closest(".cart-item").classList.toggle("done", c.checked);
+  }
+  if (c.dataset && c.dataset.price){
+    const v = parseFloat(c.value); const id = c.dataset.price;
+    if (!isFinite(v) || v < 0) { c.value = price(id).toFixed(2); return; }
+    if (Math.abs(v - PRODUCTS[id][2]) < 0.001) delete priceOverrides[id]; else priceOverrides[id] = Math.round(v*100)/100;
+    renderCosts(); renderWeek(); renderPriceEditor();
+    const msg = document.getElementById("priceMsg");
+    if (!db){ msg.textContent = "Updated for now. This browser can't save, so prices reset when you close it."; return; }
+    clearTimeout(priceSaveTimer);
+    priceSaveTimer = setTimeout(async () => {
+      try{ msg.textContent = "Saving…"; await db.doc("prices/overrides").set({p:priceOverrides}); msg.textContent = "Prices saved."; }
+      catch{ msg.textContent = "Couldn't save prices. Check your connection and try again."; }
+    }, 600);
+  }
+});
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "costPrev" && weekIdx > -2){ weekIdx--; renderWeek(); }
+  if (b.id === "costNext"){ weekIdx++; renderWeek(); }
+  if (b.dataset.store){ shopStore = b.dataset.store; try{ localStorage.setItem("hh-store", shopStore); }catch{} renderCosts(); renderHousehold(); }
+  if (b.id === "copyCart"){
+    const msg = document.getElementById("cartMsg");
+    try{ await navigator.clipboard.writeText(cartText()); msg.textContent = "Copied. Paste it into Notes or a message."; }
+    catch{ msg.textContent = "Couldn't copy here. Use the Find links to add each item instead."; }
+  }
+  if (b.id === "clearCart"){ saveTicks(weekBasket(weekIdx).start, {}); renderCosts(); }
+  if (b.id === "resetPrices"){
+    if (b.dataset.confirm !== "1"){ b.dataset.confirm = "1"; b.textContent = "Tap again to reset"; return; }
+    b.dataset.confirm = ""; b.textContent = "Reset to estimates";
+    priceOverrides = {}; renderCosts(); renderWeek(); renderPriceEditor();
+    if (db){ try{ await db.doc("prices/overrides").set({p:{}}); document.getElementById("priceMsg").textContent = "Reset to estimates."; }catch{ document.getElementById("priceMsg").textContent = "Couldn't save the reset."; } }
+  }
+});
+
+/* ---------- Household items, scanned items & barcode scanner ---------- */
+Object.assign(PRODUCTS, {
+  toothpaste:["Toothpaste","110g",4.50,"home"], toothbrush:["Toothbrushes","2 pack",5.00,"home"], mouthwash:["Mouthwash","500ml",7.00,"home"],
+  shampoo:["Shampoo","400ml",8.00,"home"], conditioner:["Conditioner","400ml",8.00,"home"], bodywash:["Body wash","1L",8.00,"home"],
+  handwash:["Hand wash refill","1L",5.00,"home"], deodorant:["Deodorant","each",6.00,"home"], razors:["Razors","pack",6.00,"home"],
+  sunscreen:["Sunscreen SPF 50","200ml",12.00,"home"], period:["Pads or tampons","pack",5.00,"home"], tissues:["Tissues","box",4.00,"home"],
+  toiletPaper:["Toilet paper","12 rolls",10.00,"home"], paperTowel:["Paper towel","2 rolls",4.50,"home"], dishLiquid:["Dishwashing liquid","500ml",4.00,"home"],
+  dishTabs:["Dishwasher tablets","30 pack",12.00,"home"], laundry:["Laundry liquid","2L",12.00,"home"], sponges:["Sponges","pack",3.00,"home"],
+  surfaceSpray:["Surface spray","500ml",5.00,"home"], binBags:["Bin bags","pack",4.00,"home"], freezerBags:["Freezer bags","pack",4.00,"home"],
+  clingWrap:["Cling wrap","roll",3.00,"home"], bakingPaper:["Baking paper","roll",3.50,"home"], foil:["Foil","roll",4.00,"home"]
+});
+const HOUSEHOLD_GROUPS = [
+  ["Personal care",["toothpaste","toothbrush","mouthwash","shampoo","conditioner","bodywash","handwash","deodorant","razors","sunscreen","period"]],
+  ["Cleaning & paper",["toiletPaper","tissues","paperTowel","dishLiquid","dishTabs","laundry","sponges","surfaceSpray","binBags"]],
+  ["Kitchen",["freezerBags","clingWrap","bakingPaper","foil"]]
+];
+AISLE_NAMES.push(["home","Household & personal care"]);
+
+let needs = {};        // {productId | "i:<docId>": qty} — on the order until cleared
+let myItems = [];      // scanned items from db
+const itemByBarcode = code => myItems.find(i => i.barcode === code);
+const customItem = key => myItems.find(i => "i:"+i.id === key);
+const needCount = () => Object.keys(needs).length;
+
+async function saveNeeds(){
+  const msg = document.getElementById("homeMsg");
+  if (!db){ if (msg) msg.textContent = "Added for now. This browser can't save, so the list resets when you close it."; return; }
+  try{ await db.doc("lists/needs").set({n:needs}); }
+  catch{ if (msg) msg.textContent = "Couldn't save the list. Check your connection and try again."; }
+}
+function toggleNeed(key, on){
+  if (on) needs = {...needs, [key]: needs[key] || 1}; else { const n = {...needs}; delete n[key]; needs = n; }
+  renderCosts(); renderWeek(); saveNeeds();
+}
+
+/* Lines for the order list from the needs list */
+function needLines(){
+  return Object.entries(needs).map(([key, qty]) => {
+    if (PRODUCTS[key]){ const [name, pack, , aisle] = PRODUCTS[key]; return {id:key, name, pack, aisle, keep:false, packs:qty, unit:price(key), total:qty*price(key), for:["your list"]}; }
+    const it = customItem(key); if (!it) return null;
+    const p = parseFloat(it.price) || 0;
+    return {id:key, name:it.name || "Scanned item", pack:it.pack || "", aisle:it.aisle || "home", keep:false, packs:qty, unit:p, total:qty*p, for:["scanned item"], unpriced:!p};
+  }).filter(Boolean);
+}
+
+function findLink(name){
+  const clean = name.replace(/\s*\(.*?\)\s*/g," ").trim();
+  return `<a class="hfind" href="${searchUrl(clean)}" data-name="${esc(clean)}" target="_blank" rel="noopener" aria-label="Find ${esc(name)} at ${storeName()}">Find ↗</a>`;
+}
+function renderHousehold(){
+  const box = document.getElementById("homeBody"); if (!box) return;
+  const st = document.getElementById("homeStoreToggle");
+  if (st) st.innerHTML = ["woolworths","coles"].map(x=>`<button data-store="${x}" aria-pressed="${x===shopStore}">${x==="coles"?"Coles":"Woolworths"}</button>`).join("");
+  const chip = (key, name, sub) => `<button class="hchip" data-need="${esc(key)}" aria-pressed="${!!needs[key]}"><span>${esc(name)}</span><small>${esc(sub)}</small></button>`;
+  const groups = HOUSEHOLD_GROUPS.map(([label, ids]) => `<div class="hgroup"><div class="mlab">${label}</div><div class="hchips">${ids.map(id=>`<span class="hwrap">${chip(id, PRODUCTS[id][0], money(price(id)))}${findLink(PRODUCTS[id][0])}</span>`).join("")}</div></div>`).join("");
+  const mine = myItems.length ? `<div class="hgroup"><div class="mlab">Your scanned items</div><div class="hchips">${myItems.map(it => {
+      const key = it.link && PRODUCTS[it.link] ? it.link : "i:"+it.id;
+      const name = it.link && PRODUCTS[it.link] ? PRODUCTS[it.link][0] : (it.name || "Scanned item");
+      const p = it.link && PRODUCTS[it.link] ? price(it.link) : parseFloat(it.price);
+      return `<span class="hwrap">${chip(key, name, (isFinite(p)&&p>0?money(p):"no price") + " · " + it.barcode)}${findLink(name)}<button class="hdel" data-delitem="${esc(it.id)}" aria-label="Remove ${esc(name)} from your scanned items">×</button></span>`;
+    }).join("")}</div></div>` : `<p class="tip">Scanned items appear here. Scan the things you buy often, like your shampoo, and they're one tap away next time.</p>`;
+  box.innerHTML = groups + mine;
+  const n = needCount();
+  document.getElementById("homeCount").textContent = n ? `${n} item${n===1?"":"s"} on this order` : "Nothing added yet";
+  const hl = document.getElementById("homeLink");
+  if (hl) hl.innerHTML = `<span>${n ? `${n} household item${n===1?"":"s"} on this order.` : "Need toothpaste, shampoo or cleaning stuff?"}</span><button class="btn ghost" data-view="household">${n ? "Edit household items" : "Add household items"} →</button>`;
+}
+
+/* ----- Barcode scanning ----- */
+let zxingLoad = null;
+function loadZXing(){
+  if (window.ZXing) return Promise.resolve();
+  if (!zxingLoad) zxingLoad = new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js";
+    s.onload = () => res(); s.onerror = () => { zxingLoad = null; rej(new Error("load")); };
+    document.head.appendChild(s);
+  });
+  return zxingLoad;
+}
+function loadImage(file){
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => { res(img); setTimeout(()=>URL.revokeObjectURL(url), 0); };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("image")); };
+    img.src = url;
+  });
+}
+function drawScaled(img, maxDim, crop){
+  // crop: [x0,y0,w,h] as fractions of the image
+  const [fx,fy,fw,fh] = crop || [0,0,1,1];
+  const sw = img.naturalWidth*fw, sh = img.naturalHeight*fh;
+  const scale = Math.min(1, maxDim / Math.max(sw, sh));
+  const c = document.createElement("canvas"); c.width = Math.max(1,Math.round(sw*scale)); c.height = Math.max(1,Math.round(sh*scale));
+  c.getContext("2d").drawImage(img, img.naturalWidth*fx, img.naturalHeight*fy, sw, sh, 0, 0, c.width, c.height);
+  return c;
+}
+function rotate(c){
+  const r = document.createElement("canvas"); r.width = c.height; r.height = c.width;
+  const g = r.getContext("2d"); g.translate(r.width/2, r.height/2); g.rotate(Math.PI/2); g.drawImage(c, -c.width/2, -c.height/2); return r;
+}
+const yieldFrame = () => new Promise(r => setTimeout(r, 0));
+/* Tries the phone's own detector, then ZXing at several sizes and crops. Returns {code, loadFailed} */
+async function decodeBarcode(file){
+  const img = await loadImage(file);
+  if ("BarcodeDetector" in window){
+    try{ const det = new window.BarcodeDetector({formats:["ean_13","ean_8","upc_a","upc_e","code_128"]}); const found = await det.detect(drawScaled(img, 2000)); if (found[0]) return {code:found[0].rawValue}; }catch{}
+  }
+  try{ await loadZXing(); }catch{ return {code:null, loadFailed:true}; }
+  const Z = window.ZXing;
+  const hints = new Map();
+  hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, [Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.EAN_8, Z.BarcodeFormat.UPC_A, Z.BarcodeFormat.UPC_E, Z.BarcodeFormat.CODE_128]);
+  hints.set(Z.DecodeHintType.TRY_HARDER, true);
+  const reader = new Z.MultiFormatReader(); reader.setHints(hints);
+  const attempts = [];
+  for (const dim of [1600, 1000, 2400]){
+    for (const crop of [null, [.15,.25,.7,.5], [.05,.1,.9,.8]]){ attempts.push([dim, crop]); }
+  }
+  for (const [dim, crop] of attempts){
+    const c = drawScaled(img, dim, crop);
+    for (const cc of [c, rotate(c)]){
+      try{ return {code: reader.decode(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cc)))).getText()}; }
+      catch{}
+      try{ reader.reset && reader.reset(); }catch{}
+    }
+    await yieldFrame();
+  }
+  return {code:null};
+}
+
+/* Ask Claude to read the barcode digits and the product name from the photo (viewer's own Claude usage, asks once) */
+let sampleFn = null, sampleImages = false;
+(async () => {
+  try{
+    sampleFn = null; // phone version: no Claude account
+    if (sampleFn){ const lim = await sampleFn.limits().catch(()=>null); sampleImages = !!(lim && lim.images); }
+  }catch{ sampleFn = null; }
+})();
+async function identifyPhoto(file){
+  if (!sampleFn || !sampleImages) return null;
+  const prompt = 'This photo shows a grocery or household product from an Australian supermarket, taken to read its barcode. '
+    + 'Read the digits printed under the barcode, and the product name and size from the packaging if visible. '
+    + 'Reply with only JSON like {"barcode":"9300000000000","name":"Brand product name","size":"400ml"}. '
+    + 'Use null for anything you cannot read clearly. The barcode must be only digits, exactly as printed; never guess digits.';
+  try{
+    const out = await sampleFn.json(prompt, {images:file, modelTier:"quick"});
+    if (!out || typeof out !== "object") return null;
+    const bc = out.barcode ? String(out.barcode).replace(/\D/g,"") : "";
+    return {barcode: bc.length >= 8 ? bc : "", name: out.name ? String(out.name).slice(0,80) : "", size: out.size ? String(out.size).slice(0,30) : ""};
+  }catch(e){
+    if (e && (e.code === "not_granted" || e.code === "sampling_disabled" || e.code === "images_unavailable")) sampleImages = false;
+    return null;
+  }
+}
+async function fillFromPhoto(file){
+  const msg = document.getElementById("s-msg"); if (!msg) return;
+  msg.textContent = "Asking Claude to read the photo…";
+  const r = await identifyPhoto(file);
+  const msg2 = document.getElementById("s-msg"); if (!msg2) return;   // dialog closed meanwhile
+  if (!r){ msg2.textContent = sampleImages ? "Couldn't read it from the photo. Type it in instead." : ""; return; }
+  const set = (id, v) => { const el = document.getElementById(id); if (el && !el.value && v) el.value = v; };
+  set("s-code", r.barcode); set("s-name", r.name && r.size && !r.name.includes(r.size) ? `${r.name} ${r.size}` : r.name); set("s-pack", r.size);
+  const code = document.getElementById("s-code").value.trim();
+  if (code && itemByBarcode(code)){ scanDialog(code); return; }
+  msg2.textContent = r.barcode || r.name ? "Filled in from the photo. Check the numbers match the pack." : "Couldn't read it from the photo. Type it in instead.";
+}
+
+document.addEventListener("change", async e => {
+  if (e.target.id !== "scanInput") return;
+  const file = e.target.files && e.target.files[0]; e.target.value = "";
+  if (!file) return;
+  const msg = document.getElementById("homeMsg");
+  msg.textContent = "Reading the barcode…";
+  let res = {code:null};
+  try{ res = await decodeBarcode(file); }catch{ res = {code:null}; }
+  msg.textContent = "";
+  if (res.code && itemByBarcode(res.code)){ scanDialog(res.code); return; }
+  const note = res.code ? "" : res.loadFailed ? "The barcode reader couldn't load here." : "Couldn't read the barcode lines in that photo.";
+  scanDialog(res.code || "", note);
+  fillFromPhoto(file);
+});
+
+function scanDialog(code, note){
+  const known = code && itemByBarcode(code);
+  const body = document.getElementById("dlgBody");
+  if (known){
+    const key = known.link && PRODUCTS[known.link] ? known.link : "i:"+known.id;
+    const name = known.link && PRODUCTS[known.link] ? PRODUCTS[known.link][0] : known.name;
+    needs = {...needs, [key]: (needs[key]||0) + 1};
+    renderCosts(); renderWeek(); saveNeeds();
+    body.innerHTML = `<h3>Added to the order</h3><p><strong>${esc(name)}</strong> is on this order (${needs[key]} on the list).</p><p class="tip">Barcode ${esc(code)}</p><div class="row"><button class="btn" id="scanAgain">Scan another</button><button class="btn ghost" id="closeDlg">Done</button></div>`;
+    document.getElementById("dlg").open || document.getElementById("dlg").showModal();
+    return;
+  }
+  const opts = Object.keys(PRODUCTS).map(id => `<option value="${id}">${esc(PRODUCTS[id][0])}</option>`).join("");
+  body.innerHTML = `<h3>${code ? "New item" : "Enter the barcode"}</h3>
+    ${note ? `<p class="tip">${esc(note)}</p>` : ""}
+    <form id="scanForm" class="add" style="border:0;padding:0;margin:0">
+      <label>Barcode<input id="s-code" inputmode="numeric" required value="${esc(code||"")}" placeholder="The numbers under the barcode"></label>
+      <label>What is it?<select id="s-link"><option value="">A new item…</option>${opts}</select></label>
+      <div id="s-new" class="two">
+        <label>Name<input id="s-name" placeholder="e.g. Pantene shampoo 400ml"></label>
+        <label>Price<input id="s-price" type="number" step="0.05" min="0" inputmode="decimal" placeholder="e.g. 9.00"></label>
+        <label>Section<select id="s-aisle">${AISLE_NAMES.map(([a,l])=>`<option value="${a}"${a==="home"?" selected":""}>${l}</option>`).join("")}</select></label>
+        <label>Size<input id="s-pack" placeholder="e.g. 400ml"></label>
+      </div>
+      <div class="row"><button class="btn" type="submit" id="s-save">Save and add to order</button><button class="btn ghost" type="button" id="closeDlg">Cancel</button><span class="tip" id="s-msg"></span></div>
+    </form>`;
+  const dlg = document.getElementById("dlg"); dlg.open || dlg.showModal();
+  document.getElementById("s-link").addEventListener("change", e => { document.getElementById("s-new").hidden = !!e.target.value; });
+  document.getElementById("scanForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const v = id => document.getElementById(id).value.trim();
+    const msg = document.getElementById("s-msg");
+    const data = {barcode:v("s-code").replace(/\s+/g,""), link:v("s-link"), name:v("s-name"), price:v("s-price"), aisle:v("s-aisle"), pack:v("s-pack"), created:Date.now()};
+    if (!data.barcode){ msg.textContent = "Add the barcode number."; return; }
+    if (!data.link && !data.name){ msg.textContent = "Give it a name, or pick what it is from the list."; return; }
+    const existing = itemByBarcode(data.barcode);
+    if (existing){ scanDialog(data.barcode); return; }
+    if (!db){ msg.textContent = "This browser isn't letting the page save. Open the link in Safari or Chrome, not a private window."; return; }
+    document.getElementById("s-save").disabled = true; msg.textContent = "Saving…";
+    try{
+      const ref = await db.collection("items").add(data);
+      const key = data.link || "i:"+ref.id;
+      needs = {...needs, [key]: needs[key] || 1};
+      if (!data.link) myItems = [...myItems, {...data, id:ref.id}];
+      renderCosts(); renderWeek(); await saveNeeds();
+      body.innerHTML = `<h3>Saved</h3><p><strong>${esc(data.link ? PRODUCTS[data.link][0] : data.name)}</strong> is on this order. Next time, scanning it adds it straight away.</p><div class="row"><button class="btn" id="scanAgain">Scan another</button><button class="btn ghost" id="closeDlg">Done</button></div>`;
+    }catch(err){
+      document.getElementById("s-save").disabled = false;
+      msg.textContent = err && err.code==="quota_exceeded" ? "Your item list is full. Remove some scanned items first." : "Couldn't save. Check your connection and try again.";
+    }
+  });
+}
+
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.need){ toggleNeed(b.dataset.need, !needs[b.dataset.need]); }
+  if (b.id === "scanBtn" || b.id === "scanAgain"){ document.getElementById("scanInput").click(); }
+  if (b.id === "typeBarcode"){ scanDialog(""); }
+  if (b.id === "clearNeeds"){
+    if (b.dataset.confirm !== "1"){ b.dataset.confirm = "1"; b.textContent = "Tap again to clear"; return; }
+    needs = {}; renderCosts(); renderWeek(); saveNeeds();
+  }
+  if (b.dataset.delitem){
+    if (b.dataset.confirm !== "1"){ b.dataset.confirm = "1"; b.textContent = "Remove?"; return; }
+    const id = b.dataset.delitem;
+    const n = {...needs}; delete n["i:"+id]; needs = n;
+    myItems = myItems.filter(i => i.id !== id); renderCosts(); renderWeek();
+    if (db){ try{ await db.collection("items").doc(id).delete(); await saveNeeds(); }catch{ document.getElementById("homeMsg").textContent = "Couldn't remove it. Try again."; } }
+  }
+});
+
+/* ---------- Search filters (one per tab) ---------- */
+const FILTERS = {
+  week:{items:"#days .day"},
+  recipes:{items:"#recipeGrid .card"},
+  ideas:{items:"#ideas li, #swapRows tr", groups:"#ideas > section"},
+  costs:{items:"#cartBody .cart-item, #priceRows tr:not(.ph), #dinnerCosts tr", groups:"#cartBody .cart-group", open:"#view-costs details.prices, #cartBody details.pantry-check"},
+  household:{items:"#homeBody .hwrap", groups:"#homeBody .hgroup"},
+  add:{items:"#oursGrid .card"}
+};
+const queries = {};
+const norm = t => (t||"").toLowerCase().replace(/&amp;/g,"&").replace(/\s+/g," ");
+function elText(el){ // visible text only: skips dropdown options
+  let out = ""; const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {acceptNode: n => n.parentElement && n.parentElement.closest("select, option") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT});
+  while (w.nextNode()) out += w.currentNode.nodeValue + " ";
+  return out;
+}
+function applyFilter(view){
+  const f = FILTERS[view]; if (!f) return;
+  const words = norm(queries[view]).trim().split(" ").filter(Boolean);
+  let shown = 0, total = 0;
+  document.querySelectorAll(f.items).forEach(el => {
+    total++;
+    const txt = norm(elText(el));
+    const hit = !words.length || words.every(w => txt.includes(w));
+    el.hidden = !hit; if (hit) shown++;
+  });
+  if (f.groups) document.querySelectorAll(f.groups).forEach(g => {
+    const kids = g.querySelectorAll(f.items.split(",").map(x=>x.trim().split(" ").pop()).join(","));
+    g.hidden = words.length > 0 && kids.length > 0 && [...kids].every(k => k.hidden);
+  });
+  if (f.open && words.length) document.querySelectorAll(f.open).forEach(d => { if ([...d.querySelectorAll("tr:not([hidden]):not(.ph), .cart-item:not([hidden])")].length) d.open = true; });
+  const c = document.getElementById("qc-"+view);
+  if (c) c.textContent = words.length ? (shown ? `${shown} match${shown===1?"":"es"}` : "No matches") : "";
+}
+function applyAllFilters(){ Object.keys(FILTERS).forEach(v => { if (queries[v]) applyFilter(v); }); }
+document.addEventListener("input", e => {
+  const q = e.target.dataset && e.target.dataset.q; if (!q) return;
+  queries[q] = e.target.value; applyFilter(q);
+});
+(() => {
+  let pending = false;
+  const mo = new MutationObserver(() => { if (pending) return; pending = true; requestAnimationFrame(() => { pending = false; applyAllFilters(); }); });
+  mo.observe(document.querySelector("main"), {childList:true, subtree:true});
+})();
+
+function card(r){
+  return `<article class="card">
+    <h3>${esc(r.title)}</h3>
+    <div class="meta">
+      <span class="chip">${esc(r.type)}</span>
+      ${r.time?`<span>${esc(r.time)}</span>`:""}
+      <span class="chip gf">GF</span>
+      ${perServe(r)!=null?`<span class="cost">${money(perServe(r))}/serve</span>`:""}
+      ${r.ours?'<span class="chip ours">Ours</span>':`<span>${esc(r.source)}</span>`}
+    </div>
+    <div class="foot">
+      <button class="linkbtn" data-open="${esc(r.id)}">Details</button>
+      ${r.url?`<a class="linkbtn" href="${esc(r.url)}" target="_blank" rel="noopener">Open recipe ↗</a>`:""}
+    </div>
+  </article>`;
+}
+
+function renderRecipes(){
+  const types = ["all","dinner","breakfast","lunch","snack","ours"];
+  document.getElementById("filters").innerHTML = types.map(t=>`<button aria-pressed="${t===filter}" data-filter="${t}">${t==="all"?"All":t==="ours"?"Our recipes":t[0].toUpperCase()+t.slice(1)}</button>`).join("");
+  const list = all().filter(r => filter==="all" || (filter==="ours" ? r.ours : r.type===filter));
+  document.getElementById("recipeGrid").innerHTML = list.length ? list.map(card).join("") : `<p class="empty">Nothing here yet. Add one from the "Add our recipe" tab.</p>`;
+  document.getElementById("oursGrid").innerHTML = ours.length ? ours.map(card).join("") : `<p class="empty">${db?"No family recipes yet. Add your first one above.":"Our recipes appear here once the page can save. Open the link in Safari or Chrome, not a private window."}</p>`;
+}
+
+function renderIdeas(){
+  const sec = (h, arr) => `<section><h3>${h}</h3><ul>${arr.map(([t,n])=>`<li>${esc(t)}${n?`<small>${esc(n)}</small>`:""}</li>`).join("")}</ul></section>`;
+  document.getElementById("ideas").innerHTML = sec("Breakfast",IDEAS.breakfast)+sec("Lunch",IDEAS.lunch)+sec("Snacks",IDEAS.snack);
+  document.getElementById("swapRows").innerHTML = SWAPS.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("");
+}
+
+function openRecipe(id){
+  const r = byId(id); if(!r) return;
+  const lines = s => (Array.isArray(s)?s:String(s||"").split("\n")).map(x=>x.trim()).filter(Boolean);
+  const ing = r.ours ? lines(r.ingredients) : r.key;
+  const steps = r.ours ? lines(r.method) : [];
+  document.getElementById("dlgBody").innerHTML = `
+    <h3>${esc(r.title)}</h3>
+    <div class="meta"><span class="chip">${esc(r.type)}</span>${r.time?`<span>${esc(r.time)}</span>`:""}${r.ours?'<span class="chip ours">Ours</span>':`<span>from ${esc(r.source)}</span>`}${r.left?'<span class="chip">leftover-friendly</span>':""}</div>
+    ${r.gf?`<div class="gfnote"><strong>Gluten free:</strong> ${esc(r.gf)}</div>`:""}
+    ${ing.length?`<div><div class="mlab">${r.ours?"Ingredients":"Key ingredients"}</div><ul>${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+    ${steps.length?`<div><div class="mlab">Method</div><ol>${steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div>`:""}
+    ${!r.ours?'<p class="tip">Full ingredients and method are on the original site.</p>':""}
+    <div class="row">
+      ${r.url?`<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open recipe ↗</a>`:""}
+      ${r.ours && db?`<button class="btn danger" id="delBtn" data-id="${esc(r.id)}">Delete</button>`:""}
+      <button class="btn ghost" id="closeDlg">Close</button>
+    </div>`;
+  document.getElementById("dlg").showModal();
+}
+
+function setView(v){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
+  ["week","recipes","ideas","costs","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+}
+
+function renderAll(){ renderWeek(); renderRecipes(); }
+
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button,a"); if(!t) return;
+  if (t.dataset.view) setView(t.dataset.view);
+  if (t.id === "prevWeek" && weekIdx > -2){ weekIdx--; renderWeek(); }
+  if (t.id === "nextWeek"){ weekIdx++; renderWeek(); }
+  if (t.dataset.filter){ filter = t.dataset.filter; renderRecipes(); }
+  if (t.dataset.open) openRecipe(t.dataset.open);
+  if (t.id === "closeDlg") document.getElementById("dlg").close();
+  if (t.id === "delBtn"){
+    if (t.dataset.confirm !== "1"){ t.dataset.confirm="1"; t.textContent="Tap again to delete"; return; }
+    try{ await db.collection("recipes").doc(t.dataset.id).delete(); document.getElementById("dlg").close(); }
+    catch(err){ t.textContent="Couldn't delete. Try again."; }
+  }
+});
+document.getElementById("dlg").addEventListener("click", e => { if (e.target.id==="dlg") e.target.close(); });
+
+document.addEventListener("change", async e => {
+  const s = e.target; if (!s.dataset.slot) return;
+  swaps = {...swaps, [s.dataset.slot]: s.value};
+  renderWeek();
+  const st = document.getElementById("saveStatus");
+  if (!db){ st.textContent = "Changed for now. This browser can't save, so it resets when you close it."; return; }
+  try{ st.textContent="Saving…"; await db.doc("plan/rotation").set({dinners:swaps}); st.textContent="Saved. The swap repeats every time this rotation week comes round."; }
+  catch(err){ st.textContent = "Couldn't save that change. Check your connection and try again."; }
+});
+
+document.getElementById("addForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = document.getElementById("addMsg");
+  if (!db){ msg.textContent = "This browser isn't letting the page save. Open the link in Safari or Chrome, not a private window."; return; }
+  const v = id => document.getElementById(id).value.trim();
+  const data = {title:v("f-title"), type:v("f-type"), time:v("f-time"), ingredients:v("f-ing"), method:v("f-method"), url:v("f-url"), cost:v("f-cost"), gf:v("f-gf"), left:document.getElementById("f-left").checked, created:Date.now()};
+  if (!data.title){ msg.textContent="Give it a name first."; return; }
+  const btn = document.getElementById("addBtn"); btn.disabled = true; msg.textContent="Adding…";
+  try{ await db.collection("recipes").add(data); e.target.reset(); msg.textContent=`Added "${data.title}".`; }
+  catch(err){ msg.textContent = err && err.code==="quota_exceeded" ? "The library is full. Delete an old recipe to make room." : "Couldn't add it. Check your connection and try again."; }
+  btn.disabled = false;
+});
+
+renderAll(); renderIdeas(); renderOptions(); renderPriceEditor();
+
+(async () => {
+  const st = document.getElementById("saveStatus");
+  db = storageWorks() ? localDb : null;
+  if (!db){ st.textContent = "This browser isn't letting the page save, so changes reset when you close it. Try opening the link in Safari or Chrome (not a private window)."; renderRecipes(); return; }
+  const timer = setTimeout(()=>{ st.textContent = "Can't reach your saved plan yet. Showing the default."; }, 10000);
+  db.doc("plan/rotation").onSnapshot(snap => {
+    if (!snap.metadata.fromCache) clearTimeout(timer);
+    const d = snap.exists ? snap.data() : null;
+    swaps = {...((d && d.dinners) || {})};
+    st.textContent = snap.exists ? "Your saved plan." : "Default plan. Swap any dinner to save your own.";
+    renderWeek();
+  }, () => { clearTimeout(timer); st.textContent = "Couldn't load your saved plan. Showing the default."; });
+  db.doc("prices/overrides").onSnapshot(snap => {
+    const d = snap.exists ? snap.data() : null;
+    priceOverrides = {...((d && d.p) || {})};
+    renderWeek(); renderPriceEditor();
+  }, () => {});
+  db.doc("lists/needs").onSnapshot(snap => {
+    const d = snap.exists ? snap.data() : null;
+    needs = {...((d && d.n) || {})};
+    renderWeek();
+  }, () => {});
+  db.collection("items").onSnapshot(snap => {
+    myItems = snap.docs.map(d => ({...d.data(), id:d.id}));
+    renderWeek();
+  }, () => {});
+  db.collection("recipes").orderBy("created","desc").onSnapshot(snap => {
+    ours = snap.docs.map(d => ({...d.data(), id:d.id, ours:true}));
+    renderAll();
+  }, () => {});
+})();
+
+/* ---------- Phone version: install card, back up & restore ---------- */
+(() => {
+  const ua = navigator.userAgent || "";
+  const os = /iPhone|iPad|iPod/.test(ua) ? "ios" : /Android/.test(ua) ? "android" : "";
+  document.querySelectorAll(".inst").forEach(el => el.classList.toggle("mine", el.dataset.os === os));
+  let hidden = false; try{ hidden = localStorage.getItem("hh-hide-install") === "1"; }catch{}
+  document.getElementById("installCard").hidden = hidden;
+})();
+document.addEventListener("click", async e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "hideInstall"){ document.getElementById("installCard").hidden = true; try{ localStorage.setItem("hh-hide-install","1"); }catch{} }
+  if (b.id === "showInstall"){ document.getElementById("installCard").hidden = false; try{ localStorage.removeItem("hh-hide-install"); }catch{} window.scrollTo({top:0, behavior:"smooth"}); }
+  if (b.id === "copyBackup"){
+    const msg = document.getElementById("backupMsg");
+    const text = JSON.stringify({app:"household-helper", saved:new Date().toISOString(), data:localDb._export()});
+    try{ await navigator.clipboard.writeText(text); msg.textContent = "Backup copied. Paste it into Notes or a message to yourself."; }
+    catch{ const t = document.getElementById("restoreText"); t.value = text; t.select(); msg.textContent = "Couldn't copy automatically. The backup is selected in the box below; copy it from there."; }
+  }
+  if (b.id === "restoreBtn"){
+    const msg = document.getElementById("restoreMsg");
+    let parsed; try{ parsed = JSON.parse(document.getElementById("restoreText").value); }catch{ msg.textContent = "That doesn't look like a backup. Paste the whole thing you copied."; return; }
+    const data = parsed && (parsed.app === "household-helper" || /kitchen/.test(parsed.app || "")) ? parsed.data : null;
+    if (!data || typeof data !== "object"){ msg.textContent = "That doesn't look like a backup from this app."; return; }
+    if (b.dataset.confirm !== "1"){ b.dataset.confirm = "1"; b.textContent = "Tap again to replace what's on this phone"; return; }
+    b.dataset.confirm = ""; b.textContent = "Restore from backup";
+    try{ localDb._import(data); msg.textContent = "Restored."; document.getElementById("restoreText").value = ""; }
+    catch{ msg.textContent = "Couldn't restore. The phone's storage may be full or blocked."; }
+  }
+});
+
+
+/* ---------- PWA: offline support, install button, durable storage ---------- */
+const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+if ("serviceWorker" in navigator){
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").then(reg => {
+      reg.addEventListener("updatefound", () => {
+        const nw = reg.installing; if (!nw) return;
+        nw.addEventListener("statechange", () => {
+          if (nw.state === "installed" && navigator.serviceWorker.controller) showUpdateBar();
+        });
+      });
+    }).catch(() => {});
+  });
+  // Reload only when an update takes over, not on the very first install
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!hadController || reloading) return; reloading = true; location.reload(); });
+}
+function showUpdateBar(){
+  if (document.getElementById("updateBar")) return;
+  const bar = document.createElement("div"); bar.id = "updateBar"; bar.className = "updatebar";
+  bar.innerHTML = '<span>A new version of Household Helper is ready.</span><button class="btn" id="updateNow">Update</button>';
+  document.body.appendChild(bar);
+}
+document.addEventListener("click", async e => {
+  if (e.target.id === "updateNow"){
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (reg && reg.waiting) reg.waiting.postMessage("skipWaiting"); else location.reload();
+  }
+});
+let deferredInstall = null;
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault(); deferredInstall = e;
+  const row = document.getElementById("installBtnRow"); if (row) row.hidden = false;
+  const card = document.getElementById("installCard"); if (card) card.hidden = false;
+});
+document.addEventListener("click", async e => {
+  if (e.target.id !== "installBtn" || !deferredInstall) return;
+  deferredInstall.prompt();
+  try{ await deferredInstall.userChoice; }catch{}
+  deferredInstall = null; document.getElementById("installBtnRow").hidden = true;
+});
+window.addEventListener("appinstalled", () => { const c = document.getElementById("installCard"); if (c) c.hidden = true; });
+if (isStandalone()){ const c = document.getElementById("installCard"); if (c) c.hidden = true; }
+if (navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
+</script>
+
+</body>
+</html>
