@@ -1619,32 +1619,60 @@ document.addEventListener("click", async e => {
 const isStandalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 if ("serviceWorker" in navigator){
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").then(reg => {
-      reg.addEventListener("updatefound", () => {
-        const nw = reg.installing; if (!nw) return;
-        nw.addEventListener("statechange", () => {
-          if (nw.state === "installed" && navigator.serviceWorker.controller) showUpdateBar();
-        });
-      });
-    }).catch(() => {});
+    navigator.serviceWorker.register("sw.js", {updateViaCache: "none"}).catch(() => {});
   });
-  // Reload only when an update takes over, not on the very first install
-  const hadController = !!navigator.serviceWorker.controller;
-  let reloading = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => { if (!hadController || reloading) return; reloading = true; location.reload(); });
 }
-function showUpdateBar(){
-  if (document.getElementById("updateBar")) return;
-  const bar = document.createElement("div"); bar.id = "updateBar"; bar.className = "updatebar";
-  bar.innerHTML = '<span>A new version of Household Helper is ready.</span><button class="btn" id="updateNow">Update</button>';
-  document.body.appendChild(bar);
-}
-document.addEventListener("click", async e => {
-  if (e.target.id === "updateNow"){
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (reg && reg.waiting) reg.waiting.postMessage("skipWaiting"); else location.reload();
+
+/* ---------- Auto update ----------
+   When a new version is published, the app picks it up by itself: each time the
+   app comes back to the screen (and every 30 minutes while it is open) it asks the
+   site whether index.html has changed. If it has, the app reloads at a safe moment,
+   never while you are typing, and shows a short "Updated" note. */
+(() => {
+  let baseline = null, checking = false, pending = false;
+  const stamp = res => res.headers.get("etag") || res.headers.get("last-modified") || "";
+  async function latest(){
+    // HEAD requests are not handled by the service worker, so this always asks the site
+    const res = await fetch("index.html", {method: "HEAD", cache: "no-store"});
+    return res.ok ? stamp(res) : "";
   }
-});
+  const busy = () => {
+    const a = document.activeElement;
+    return !!(a && (a.matches("input, textarea, select, [contenteditable]")) || document.querySelector("dialog[open]"));
+  };
+  function applyUpdate(){
+    if (busy()){ pending = true; return; }
+    try{ sessionStorage.setItem("hh-updated", "1"); }catch{}
+    location.reload();
+  }
+  async function check(){
+    if (checking || !navigator.onLine) return;
+    checking = true;
+    try{
+      const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+      if (reg) reg.update().catch(() => {});
+      const now = await latest();
+      if (!now) return;
+      if (baseline === null){ baseline = now; return; }
+      if (now !== baseline) applyUpdate();
+    }catch{} finally{ checking = false; }
+  }
+  window.addEventListener("load", check);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
+  window.addEventListener("online", check);
+  window.addEventListener("pageshow", e => { if (e.persisted) check(); });
+  setInterval(() => { if (document.visibilityState === "visible") check(); }, 30 * 60 * 1000);
+  // An update found while typing waits until you leave the box
+  document.addEventListener("focusout", () => { if (pending) setTimeout(() => { if (pending && !busy()){ pending = false; applyUpdate(); } }, 1500); });
+
+  let shown = false; try{ shown = sessionStorage.getItem("hh-updated") === "1"; sessionStorage.removeItem("hh-updated"); }catch{}
+  if (shown){
+    const bar = document.createElement("div"); bar.className = "updatebar"; bar.setAttribute("role", "status");
+    bar.innerHTML = "<span>Household Helper has been updated to the latest version.</span>";
+    const add = () => { document.body.appendChild(bar); setTimeout(() => bar.remove(), 4000); };
+    document.body ? add() : window.addEventListener("DOMContentLoaded", add);
+  }
+})();
 let deferredInstall = null;
 window.addEventListener("beforeinstallprompt", e => {
   e.preventDefault(); deferredInstall = e;
