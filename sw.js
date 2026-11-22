@@ -3,8 +3,8 @@
    of the app is fetched fresh from the site when there is a connection, and the
    saved copy is used only when offline. No version bump is needed when you
    publish a change. */
-const VERSION = "household-helper-v4";
-const SHELL = ["./", "index.html", "family.js", "vendor/supabase.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
+const VERSION = "household-helper-v5";
+const SHELL = ["./", "index.html", "family.js", "pantry.js", "vendor/supabase.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 const RUNTIME = "hh-runtime-v1";
 
 self.addEventListener("install", e => {
