@@ -307,6 +307,32 @@ button.pchip:hover{border-color:var(--accent)}
 .authform input{font-size:16px}
 .pickmenu{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 @media (max-width:520px){.mcell{min-height:56px;padding:4px}.mcell .mk span:not(.pdot){display:none}.mcell .mc{display:none}}
+/* Pantry & use-by */
+.usealert{margin:0 0 14px;background:var(--gf-soft);border-radius:var(--r);padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
+.usealert.bad{background:color-mix(in srgb,var(--warn) 14%,var(--surface))}
+.pform .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.quickdates{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pgroup{margin-top:14px}
+.pgroup > .cg-head{margin-bottom:4px}
+.pitem{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--sunk)}
+.pitem .pm{min-width:0}
+.pitem .pn{font-weight:600;overflow-wrap:anywhere}
+.pitem .pd{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px;font-size:12.5px;color:var(--muted)}
+.pitem .pacts{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:14px}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--surface)}
+.qty button{border:0;background:none;color:var(--ink);font:600 16px var(--body);width:34px;height:32px;cursor:pointer}
+.qty button:hover{background:var(--sunk)}
+.qty span{min-width:44px;text-align:center;font-variant-numeric:tabular-nums;font-size:13.5px;padding:0 2px}
+.ub{display:inline-flex;align-items:center;padding:1px 8px;border-radius:99px;font-weight:600;font-size:12px;background:var(--sunk);color:var(--muted)}
+.ub.soon{background:var(--gf-soft);color:var(--gf)}
+.ub.bad{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn)}
+.ub.out{background:var(--ink);color:var(--bg)}
+.uselist{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+.uselist li{display:grid;gap:2px}
+.uselist .useideas{font-size:13px;color:var(--muted)}
+.pform .three > label{min-width:0}
+.pform input,.pform select{width:100%;min-width:0}
+@media (max-width:520px){.pform .three{grid-template-columns:1fr 1fr}.pform .three label:last-child{grid-column:1 / -1}}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -332,6 +358,7 @@ button.pchip:hover{border-color:var(--accent)}
     <button role="tab" id="tab-week" aria-selected="true" data-view="week">This week</button>
     <button role="tab" id="tab-calendar" aria-selected="false" data-view="calendar">Calendar</button>
     <button role="tab" id="tab-chores" aria-selected="false" data-view="chores">Chores</button>
+    <button role="tab" id="tab-pantry" aria-selected="false" data-view="pantry">Pantry</button>
     <button role="tab" id="tab-family" aria-selected="false" data-view="family">Family &amp; sign in</button>
     <button role="tab" id="tab-roster" aria-selected="false" data-view="roster">Roster</button>
     <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
@@ -354,6 +381,7 @@ button.pchip:hover{border-color:var(--accent)}
       </div>
       <div class="rnote" id="rosterNote"></div>
       <p class="status" id="saveStatus">Loading your saved plan…</p>
+      <div class="usealert" id="pantryAlertWeek" hidden></div>
       <div class="days" id="days"></div>
       <div class="weekcost" id="weekCost"></div>
     </section>
@@ -367,6 +395,7 @@ button.pchip:hover{border-color:var(--accent)}
         <button class="btn ghost" id="calNext" aria-label="Next">→</button>
       </div>
       <p class="tip" id="calHint"></p>
+      <div class="usealert" id="pantryAlertCal" hidden></div>
       <div id="calBody"></div>
       <div class="panel" id="calShopPanel">
         <div class="panel-head"><h3>Shopping lists this week</h3><span class="tip" id="calShopCount"></span></div>
@@ -398,6 +427,34 @@ button.pchip:hover{border-color:var(--accent)}
       </div>
       <div class="panel-head"><h3>Chore list</h3><button class="btn ghost" id="choreStarter">Add common chores</button></div>
       <div id="choreList"></div>
+    </section>
+
+    <section id="view-pantry" hidden>
+      <h2>Pantry &amp; use-by</h2>
+      <div class="qbar"><input type="search" class="q" id="q-pantry" data-q="pantry" placeholder="Search the pantry, e.g. yoghurt" autocomplete="off" aria-label="Search the pantry, e.g. yoghurt"><span class="qcount" id="qc-pantry"></span></div>
+      <p class="sub">What's in the fridge, freezer and pantry, and when it needs using. Items close to their use-by date are flagged here, on This week and on the calendar. Add each batch with its own date, so two packs bought a week apart are tracked separately.</p>
+      <div class="panel" id="useSoonPanel" hidden>
+        <h3>Use it up</h3>
+        <div id="useSoon"></div>
+      </div>
+      <div class="panel">
+        <h3 id="pantryFormTitle">Add to the pantry</h3>
+        <form class="add pform" id="pantryForm">
+          <input type="hidden" id="pt-id">
+          <label>Item<input id="pt-name" list="pt-names" required maxlength="80" placeholder="e.g. Greek yoghurt" autocomplete="off"></label>
+          <datalist id="pt-names"></datalist>
+          <div class="three">
+            <label>Kept in<select id="pt-where"><option value="fridge">Fridge</option><option value="freezer">Freezer</option><option value="pantry">Pantry</option></select></label>
+            <label>How many<input id="pt-qty" type="number" min="0" step="any" inputmode="decimal" value="1"></label>
+            <label>Unit <span style="font-weight:400">(optional)</span><input id="pt-unit" maxlength="20" placeholder="e.g. tubs, kg"></label>
+          </div>
+          <label>Use by <span style="font-weight:400">(optional)</span><input id="pt-date" type="date"></label>
+          <div class="quickdates" id="pt-quick"><span class="tip">Quick:</span><button type="button" class="pchip none" data-ptdays="3">3 days</button><button type="button" class="pchip none" data-ptdays="7">1 week</button><button type="button" class="pchip none" data-ptdays="14">2 weeks</button><button type="button" class="pchip none" data-ptdays="30">1 month</button><button type="button" class="pchip none" data-ptdays="90">3 months</button><button type="button" class="pchip none" data-ptdays="0">No date</button></div>
+          <div class="row"><button class="btn" type="submit" id="pantrySave">Add</button><button class="btn ghost" type="button" id="pantryCancel" hidden>Cancel</button><span class="tip" id="pantryMsg"></span></div>
+        </form>
+      </div>
+      <div class="panel-head" style="margin-top:16px"><div class="filters seg" id="pantryWhere" aria-label="Show"></div><span class="tip" id="pantryCount"></span></div>
+      <div id="pantryList"></div>
     </section>
 
     <section id="view-family" hidden>
@@ -1684,7 +1741,7 @@ function openRecipe(id){
 
 function setView(v){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
-  ["week","calendar","chores","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+  ["week","calendar","chores","pantry","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
 }
 
 function renderAll(){ renderWeek(); renderRecipes(); }
@@ -1877,6 +1934,7 @@ if (isStandalone()){ const c = document.getElementById("installCard"); if (c) c.
 if (navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
 </script>
 <script src="family.js"></script>
+<script src="pantry.js"></script>
 
 </body>
 </html>
