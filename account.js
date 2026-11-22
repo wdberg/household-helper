@@ -333,6 +333,11 @@ const Cloud = (() => {
       try{ await client().auth.signOut({scope: "local"}); }catch{}
     },
     async deleteMyLogin(){ await rpc("delete_my_login"); stopSync(); clearPhone(); user = null; fam = null; try{ await client().auth.signOut({scope: "local"}); }catch{} setState("off"); },
+    // Reminders on this phone (rows are private to the signed-in person)
+    async getPush(endpoint){ const {data, error} = await client().from("push_subs").select("*").eq("endpoint", endpoint).maybeSingle(); if (error) throw error; return data; },
+    async savePush(row){ const {error} = await client().from("push_subs").upsert({...row, household_id: fam.id, user_id: user.id}, {onConflict: "endpoint"}); if (error) throw error; },
+    async deletePush(endpoint){ const {error} = await client().from("push_subs").delete().eq("endpoint", endpoint); if (error) throw error; },
+    async testPush(endpoint){ const {data, error} = await client().functions.invoke("send-reminders", {body: {endpoint}}); if (error) throw error; return data; },
     async deleteFamily(){ await rpc("delete_household"); stopSync(); clearPhone(); user = null; fam = null; try{ await client().auth.signOut({scope: "local"}); }catch{} setState("off"); }
   };
 })();
