@@ -28,7 +28,9 @@ function friendlyError(err){
   if (/already_in_family/.test(m)) return "This login is already part of a family.";
   if (/not_allowed/.test(m)) return "Only the family's owner or an adult can do that.";
   if (/too_many_invites/.test(m)) return "There are already 20 invite codes waiting. Cancel some first.";
-  if (/owner_delete_family/.test(m)) return "As the family's owner, use Delete our family instead.";
+  if (/owner_delete_family/.test(m)) return "You're the family's only owner, so use Delete our family instead, or make someone else an owner first.";
+  if (/not_in_family/.test(m)) return "That person isn't in your family any more.";
+  if (/use_change_password/.test(m)) return "To change your own password, use Change password under Your login.";
   if (/password.*(short|least|characters)/i.test(m)) return "Use a password of at least 8 characters.";
   if (/weak/i.test(m)) return "That password is too easy to guess. Try a longer one.";
   if (/rate limit|too many/i.test(m)) return "Too many tries. Wait a few minutes and try again.";
@@ -69,9 +71,9 @@ const Cloud = (() => {
   });
 
   async function loadFamily(){
-    const {data, error} = await sb.from("members").select("household_id, role, name, households(name)").eq("user_id", user.id).maybeSingle();
+    const {data, error} = await sb.from("members").select("household_id, role, name, must_change_password, households(name)").eq("user_id", user.id).maybeSingle();
     if (error) throw error;
-    fam = data ? {id: data.household_id, role: data.role, myName: data.name, name: (data.households && data.households.name) || ""} : null;
+    fam = data ? {id: data.household_id, role: data.role, myName: data.name, mustChange: !!data.must_change_password, name: (data.households && data.households.name) || ""} : null;
     document.body.classList.toggle("kidmode", !!fam && fam.role === "kid");
     return fam;
   }
@@ -269,7 +271,13 @@ const Cloud = (() => {
     setRole: (uid, role) => rpc("set_member_role", {p_user: uid, p_role: role}),
     async renameFamily(n){ await rpc("rename_household", {p_name: n}); await loadFamily(); notify(); },
     async renameMe(n){ await rpc("rename_me", {p_name: n}); await loadFamily(); notify(); },
-    async changePassword(p){ const {error} = await client().auth.updateUser({password: p}); if (error) throw error; if (recovery){ recovery = false; notify(); } },
+    async changePassword(p){
+      const {error} = await client().auth.updateUser({password: p}); if (error) throw error;
+      const wasTemp = fam && fam.mustChange;
+      if (wasTemp){ await rpc("password_changed"); await loadFamily(); }
+      if (recovery || wasTemp){ recovery = false; notify(); }
+    },
+    resetPassword: uid => rpc("reset_member_password", {p_user: uid}),
     async reset(email){ const {error} = await client().auth.resetPasswordForEmail(email, {redirectTo: redirect()}); if (error) throw error; },
     async signOut(){
       await flush().catch(() => {});
@@ -328,8 +336,10 @@ function renderAccount(){
   if (!canSave()){ el.innerHTML = `<h3>Share with your family</h3><p class="tip">This browser isn't letting the app save. Open it in Safari or Chrome, not a private window.</p>`; return; }
   if (!Cloud.available()){ el.innerHTML = `<h3>Share with your family</h3><p class="tip">Connect to the internet once to set up family sharing.</p>`; return; }
 
-  if (u && Cloud.recovery){
-    el.innerHTML = `<h3>Choose a new password</h3><form class="authform" id="newPassForm">${pw("np-pass", "New password")}<div class="row"><button class="btn" type="submit">Save password</button><span class="tip" id="authMsg"></span></div></form>`;
+  if (u && (Cloud.recovery || (f && f.mustChange))){
+    el.innerHTML = `<h3>Choose your own password</h3>
+      <p class="tip">${f && f.mustChange ? "You signed in with a temporary password. Choose your own now, one you'll remember." : "Choose a new password for your login."}</p>
+      <form class="authform" id="newPassForm">${pw("np-pass", "New password")}<div class="row"><button class="btn" type="submit">Save password</button><span class="tip" id="authMsg"></span></div></form>`;
     return;
   }
   if (u && !f){
@@ -400,10 +410,19 @@ function renderAccount(){
     return;
   }
   if (authMode === "reset"){
-    el.innerHTML = `<h3>Reset your password</h3><p class="tip">We'll email you a link to choose a new password.</p>
-      <form class="authform" id="resetForm">${field("rs-email", "Email", 'type="email" autocomplete="username" required')}
-      <div class="row"><button class="btn" type="submit" id="authBtn">Send reset link</button><span class="tip" id="authMsg"></span></div></form>
-      <p class="tip">No email after a few minutes? Check your junk folder, or ask the family's owner for help.</p>${back}`;
+    el.innerHTML = `<h3>Forgot your password?</h3>
+      <ol class="steps">
+        <li>Ask your family's owner (or any adult, if you're a kid) to open <strong>Family &amp; sign in</strong> on their phone.</li>
+        <li>Next to your name under <strong>Who can sign in</strong>, they tap <strong>Reset password</strong>.</li>
+        <li>They give you the temporary password it shows.</li>
+        <li>Come back here, tap <strong>Sign in</strong>, and use your email with the temporary password. You'll then choose your own.</li>
+      </ol>
+      <div class="row" style="margin-top:12px"><button type="button" class="btn" data-authgo="signin">Go to Sign in</button></div>
+      <details class="sub-d"><summary>I'm the family's only owner</summary>
+        <p class="tip">Try an email reset link. If no email arrives, ask the person who shared Household Helper with you for help.</p>
+        <form class="authform" id="resetForm">${field("rs-email", "Email", 'type="email" autocomplete="username" required')}
+        <div class="row"><button class="btn ghost" type="submit" id="authBtn">Email me a reset link</button><span class="tip" id="authMsg"></span></div></form>
+      </details>${back}`;
     return;
   }
   el.innerHTML = `<h3>Sign in</h3><p class="tip">Use your own email and password.</p>
@@ -443,13 +462,16 @@ async function renderLogins(){
   box.innerHTML = list.map(m => {
     const self = m.user_id === uid; const owner = m.role === "owner";
     const onList = people.some(p => p.userId === m.user_id || p.name.trim().toLowerCase() === m.name.trim().toLowerCase());
+    const canReset = !self && (f.role === "owner" || (f.role === "adult" && m.role === "kid"));
     const roleCtl = f.role === "owner" && !self && !owner
-      ? `<select data-setrole="${esc(m.user_id)}" aria-label="Role for ${esc(m.name)}"><option value="adult"${m.role === "adult" ? " selected" : ""}>Adult</option><option value="kid"${m.role === "kid" ? " selected" : ""}>Kid</option></select>`
+      ? `<select data-setrole="${esc(m.user_id)}" aria-label="Role for ${esc(m.name)}"><option value="owner">Owner</option><option value="adult"${m.role === "adult" ? " selected" : ""}>Adult</option><option value="kid"${m.role === "kid" ? " selected" : ""}>Kid</option></select>`
       : `<span class="chip">${ROLE_NAMES[m.role]}</span>`;
     return `<div class="lrow"><div class="lm"><b>${esc(m.name)}${self ? " (you)" : ""}</b>
         ${!onList && f.role !== "kid" ? `<button class="linkbtn" data-addperson="${esc(m.user_id)}" data-name="${esc(m.name)}">Add to "Everyone in the house"</button>` : ""}</div>
-      ${roleCtl}${f.role !== "kid" && !self && !owner ? `<button class="linkbtn" data-rmmember="${esc(m.user_id)}" data-name="${esc(m.name)}">Remove</button>` : ""}</div>`;
-  }).join("");
+      ${roleCtl}${canReset ? `<button class="linkbtn" data-resetpw="${esc(m.user_id)}" data-name="${esc(m.name)}">Reset password</button>` : ""}${f.role !== "kid" && !self && !owner ? `<button class="linkbtn" data-rmmember="${esc(m.user_id)}" data-name="${esc(m.name)}">Remove</button>` : ""}</div>`;
+  }).join("") + (f.role === "owner" && list.filter(m => m.role === "owner").length < 2 && list.some(m => m.role === "adult")
+    ? `<p class="tip"><strong>Tip:</strong> make another adult an owner too (choose Owner next to their name). Then if you ever forget your password, they can reset it for you.</p>` : "")
+    + (f.role !== "kid" ? `<p class="tip">Forgotten passwords: tap <strong>Reset password</strong> next to their name. ${f.role === "owner" ? "Owners can reset anyone's; adults can reset kids'." : "Adults can reset kids'; the owner can reset anyone's."}</p>` : "");
   if (f.role !== "kid") renderInvites();
 }
 let inviteRole = "adult";
@@ -493,6 +515,21 @@ document.addEventListener("click", async e => {
     if (d.confirm !== "1"){ d.confirm = "1"; b.textContent = "Tap again to cancel"; return; }
     try{ await Cloud.cancelInvite(d.cancelinv); renderInvites(); }catch(err){ toast(friendlyError(err)); }
   }
+  if (d.resetpw){
+    if (d.confirm !== "1"){ d.confirm = "1"; b.textContent = `Tap again to reset ${d.name}'s password`; return; }
+    b.disabled = true;
+    try{
+      const temp = await Cloud.resetPassword(d.resetpw);
+      document.getElementById("dlgBody").innerHTML = `<h3>New temporary password for ${esc(d.name)}</h3>
+        <div class="codebox"><b class="code pwcode">${esc(temp)}</b><small>Letters and numbers, with the dashes.</small></div>
+        <ol class="steps"><li>Give this to ${esc(d.name)} in person or by text.</li><li>They sign in with their usual email and this password.</li><li>The app then asks them to choose their own.</li></ol>
+        <p class="tip">They've been signed out on their other phones. Their family data isn't affected.</p>
+        <div class="row"><button class="btn" data-copytext="${esc(temp)}">Copy password</button><button class="btn ghost" id="closeDlg">Done</button></div>`;
+      document.getElementById("dlg").showModal();
+    }catch(err){ toast(friendlyError(err)); }
+    renderLogins();
+  }
+  if (d.copytext){ try{ await navigator.clipboard.writeText(d.copytext); b.textContent = "Copied"; }catch{ b.textContent = "Couldn't copy: write it down"; } }
   if (d.rmmember){
     if (d.confirm !== "1"){ d.confirm = "1"; b.textContent = `Tap again to remove ${d.name}`; return; }
     try{ await Cloud.removeMember(d.rmmember); toast(`${d.name} can no longer sign in to this family.`); renderLogins(); }catch(err){ toast(friendlyError(err)); }

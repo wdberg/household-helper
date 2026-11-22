@@ -365,6 +365,7 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
 .codebox{margin-top:12px;background:var(--accent-soft);border-radius:var(--r);padding:14px 16px;display:grid;gap:4px;justify-items:start}
 .code{font-family:var(--display);font-size:32px;letter-spacing:.18em;font-variant-numeric:tabular-nums}
 .code.sm{font-size:16px;letter-spacing:.12em}
+.code.pwcode{font-size:24px;letter-spacing:.08em;user-select:all}
 .howto summary,#privacy summary{cursor:pointer;display:grid;gap:2px}
 .howto summary h3,#privacy summary h3{display:inline}
 .howto h4,.privacy h4{font-family:var(--display);font-size:16px;margin:16px 0 4px}
@@ -534,12 +535,17 @@ body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:non
         </ol>
         <h4>Adults and kids</h4>
         <ul class="steps">
-          <li><b>Owner</b> (whoever started the family): can do everything, including changing roles and deleting the family.</li>
+          <li><b>Owner</b> (whoever started the family, plus anyone they make an owner): can do everything, including resetting passwords, changing roles and deleting the family.</li>
           <li><b>Adults</b>: can change everything and invite people.</li>
           <li><b>Kids</b>: can see everything, tick off chores (and earn stars) and add to shopping lists, but can't change plans, chores or settings.</li>
         </ul>
         <h4>Forgot your password?</h4>
-        <p class="tip">On the Sign in screen, tap <strong>Forgot your password?</strong> and we'll email a reset link. If it doesn't arrive, the family's owner can remove your login and send you a new invite code, so you can sign up again with a new password. Your family's plans and lists aren't affected.</p>
+        <ol class="steps">
+          <li>Ask the family's owner (or any adult, for kids) to open <strong>Family &amp; sign in</strong> and tap <strong>Reset password</strong> next to your name.</li>
+          <li>They give you the temporary password it shows.</li>
+          <li>Sign in with your email and that password. The app asks you to choose your own straight away.</li>
+        </ol>
+        <p class="tip">Owners: make another adult an owner too, so someone can reset your password if you forget it. Your family's plans and lists aren't affected by a reset.</p>
       </details>
 
       <div class="panel" id="acctPanel"><div id="acctBody"></div></div>
