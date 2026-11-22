@@ -249,19 +249,91 @@ const freqText = c => {
 };
 const ordinal = n => n + (n % 10 === 1 && n !== 11 ? "st" : n % 10 === 2 && n !== 12 ? "nd" : n % 10 === 3 && n !== 13 ? "rd" : "th");
 
-const STARTER_CHORES = [
-  {name: "Unload the dishwasher", freq: "daily", who: "rotate"},
-  {name: "Wipe kitchen benches", freq: "daily", who: ""},
-  {name: "Take the bins out", freq: "weekly", days: [2], who: "rotate"},
-  {name: "Washing", freq: "weekly", days: [0, 3], who: ""},
-  {name: "Vacuum", freq: "weekly", days: [5], who: "rotate"},
-  {name: "Clean the bathroom", freq: "weekly", days: [5], who: "rotate"},
-  {name: "Water the plants", freq: "weekly", days: [2, 6], who: "rotate"},
-  {name: "Change bed sheets", freq: "fortnightly", days: [6], who: ""},
-  {name: "Mop the floors", freq: "fortnightly", days: [5], who: "rotate"},
-  {name: "Mow the lawn", freq: "fortnightly", days: [6], who: ""},
-  {name: "Clean out the fridge", freq: "monthly", who: ""}
+/* Common chores to choose from, grouped by area. Days: 0 = Monday … 6 = Sunday. who: "" anyone, "rotate" take turns */
+const WEEKDAYS = [0, 1, 2, 3, 4];
+const COMMON_CHORES = [
+  ["Kitchen", [
+    {name: "Unload the dishwasher", freq: "daily", who: "rotate"},
+    {name: "Load the dishwasher", freq: "daily", who: ""},
+    {name: "Wash up after dinner", freq: "daily", who: "rotate"},
+    {name: "Set the table for dinner", freq: "daily", who: "rotate"},
+    {name: "Clear the table", freq: "daily", who: "rotate"},
+    {name: "Wipe kitchen benches", freq: "daily", who: ""},
+    {name: "Sweep the kitchen floor", freq: "weekly", days: [1, 4], who: "rotate"},
+    {name: "Empty the kitchen rubbish", freq: "weekly", days: [1, 4], who: "rotate"},
+    {name: "Clean the microwave", freq: "weekly", days: [4], who: ""},
+    {name: "Check use-by dates in the fridge", freq: "weekly", days: [6], who: ""},
+    {name: "Clean out the fridge", freq: "monthly", who: ""},
+    {name: "Clean the oven", freq: "monthly", who: ""}
+  ]],
+  ["Bathroom", [
+    {name: "Clean the toilet", freq: "weekly", days: [5], who: "rotate"},
+    {name: "Clean the shower and bath", freq: "weekly", days: [5], who: "rotate"},
+    {name: "Wipe the sink and mirror", freq: "weekly", days: [2, 5], who: "rotate"},
+    {name: "Mop the bathroom floor", freq: "weekly", days: [5], who: ""},
+    {name: "Change the towels", freq: "weekly", days: [6], who: ""},
+    {name: "Restock toilet paper and soap", freq: "weekly", days: [0], who: ""}
+  ]],
+  ["Laundry", [
+    {name: "Washing", freq: "weekly", days: [0, 3], who: ""},
+    {name: "Hang out the washing", freq: "weekly", days: [0, 3], who: "rotate"},
+    {name: "Fold and put away clothes", freq: "weekly", days: [1, 4], who: "rotate"},
+    {name: "Ironing", freq: "weekly", days: [6], who: ""},
+    {name: "Change bed sheets", freq: "fortnightly", days: [6], who: ""},
+    {name: "Wash the bath mats", freq: "monthly", who: ""}
+  ]],
+  ["Bedrooms & living areas", [
+    {name: "Make your bed", freq: "daily", who: ""},
+    {name: "Tidy the lounge room", freq: "daily", who: "rotate"},
+    {name: "Tidy your bedroom", freq: "weekly", days: [5], who: ""},
+    {name: "Vacuum", freq: "weekly", days: [5], who: "rotate"},
+    {name: "Dust the furniture", freq: "weekly", days: [3], who: "rotate"},
+    {name: "Mop the floors", freq: "fortnightly", days: [5], who: "rotate"},
+    {name: "Wipe light switches and door handles", freq: "fortnightly", days: [3], who: ""},
+    {name: "Clean the windows", freq: "monthly", who: ""}
+  ]],
+  ["Outside", [
+    {name: "Take the bins out", freq: "weekly", days: [2], who: "rotate"},
+    {name: "Bring the bins in", freq: "weekly", days: [3], who: "rotate"},
+    {name: "Water the plants", freq: "weekly", days: [2, 6], who: "rotate"},
+    {name: "Sweep the patio and paths", freq: "weekly", days: [6], who: "rotate"},
+    {name: "Check the pool", freq: "weekly", days: [6], who: ""},
+    {name: "Mow the lawn", freq: "fortnightly", days: [6], who: ""},
+    {name: "Weed the garden", freq: "fortnightly", days: [6], who: ""},
+    {name: "Clean the barbecue", freq: "monthly", who: ""},
+    {name: "Wash the car", freq: "fortnightly", days: [6], who: "rotate"}
+  ]],
+  ["Pets", [
+    {name: "Feed the pets", freq: "daily", who: "rotate"},
+    {name: "Walk the dog", freq: "daily", who: "rotate"},
+    {name: "Clean the litter tray", freq: "daily", who: ""},
+    {name: "Refresh the pets' water", freq: "daily", who: "rotate"},
+    {name: "Clean the fish tank", freq: "fortnightly", days: [6], who: ""},
+    {name: "Wash the dog", freq: "monthly", who: ""}
+  ]],
+  ["School & kids", [
+    {name: "Make school lunches", freq: "weekly", days: [0, 1, 2, 3, 6], who: "rotate"},
+    {name: "Pack school bags", freq: "weekly", days: WEEKDAYS, who: ""},
+    {name: "Unpack lunchboxes", freq: "weekly", days: WEEKDAYS, who: ""},
+    {name: "Homework and reading", freq: "weekly", days: [0, 1, 2, 3], who: ""},
+    {name: "Check school notes and the app", freq: "weekly", days: [4], who: ""},
+    {name: "Wash sports uniforms", freq: "weekly", days: [5], who: ""}
+  ]],
+  ["Running the house", [
+    {name: "Plan next week's meals", freq: "weekly", days: [6], who: ""},
+    {name: "Do the grocery order", freq: "weekly", days: [6], who: ""},
+    {name: "Put the shopping away", freq: "weekly", days: [0], who: "rotate"},
+    {name: "Pay the bills", freq: "monthly", who: ""},
+    {name: "Test the smoke alarms", freq: "monthly", who: ""},
+    {name: "Clean out the car", freq: "monthly", who: "rotate"}
+  ]]
 ];
+const COMMON_FLAT = COMMON_CHORES.flatMap(([group, list]) => list.map(c => ({...c, group, days: c.days || []})));
+const suggestText = c => {
+  const days = (c.days || []).length === 7 ? "every day" : (c.days || []).map(i => DAYS[i][1].slice(0, 3)).join(", ");
+  return c.freq === "daily" ? "Every day" : c.freq === "monthly" ? "Monthly" : `${c.freq === "weekly" ? "Weekly" : "Fortnightly"} · ${days}`;
+};
+const whoText = w => w === "rotate" ? "takes turns" : "anyone";
 
 /* ---------- Account bar and Family tab ---------- */
 function stateText(){
@@ -451,13 +523,14 @@ function renderChoreForm(){
   document.querySelector("#ch-date-row").firstChild.textContent = f === "once" ? "Date" : "Starting";
 }
 function renderChores(){
-  renderChoreForm();
+  renderChoreForm(); renderCommon();
+  const pnl = document.getElementById("commonPanel"); if (pnl && !chores.length && !pnl.dataset.seen){ pnl.open = true; pnl.dataset.seen = "1"; }
   const el = document.getElementById("choreList");
   el.innerHTML = chores.length ? chores.map(c => {
     const who = c.who === "rotate" ? '<span class="pchip none">Takes turns</span>' : person(c.who) ? pchip(person(c.who)) : '<span class="pchip none">Anyone</span>';
     return `<div class="chrow"><div class="cm"><b>${esc(c.name)}</b><small>${esc(freqText(c))} ${who}</small></div>
       <div class="acts"><button class="linkbtn" data-choreedit="${esc(c.id)}">Edit</button><button class="linkbtn" data-choredel="${esc(c.id)}">Remove</button></div></div>`;
-  }).join("") : `<p class="empty">No chores yet. Add your own above, or tap <strong>Add common chores</strong> to start with a typical list you can edit.</p>`;
+  }).join("") : `<p class="empty">No chores yet. Add your own above, or pick from <strong>Choose from common chores</strong>.</p>`;
 }
 function resetChoreForm(){
   document.getElementById("choreForm").reset();
@@ -466,6 +539,41 @@ function resetChoreForm(){
   document.getElementById("choreSave").textContent = "Add chore";
   document.getElementById("choreCancel").hidden = true;
   document.getElementById("ch-date").value = dkey(todayUTC);
+  renderChoreForm();
+}
+
+/* ---------- Common chores picker ---------- */
+const haveChore = name => chores.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
+function renderCommon(){
+  const body = document.getElementById("commonBody"); if (!body) return;
+  const keep = new Set([...document.querySelectorAll("input[data-common]:checked:not(:disabled)")].map(x => x.dataset.common));
+  let i = 0;
+  body.innerHTML = COMMON_CHORES.map(([group, list]) => {
+    const rows = list.map(c => {
+      const idx = i++; const have = haveChore(c.name);
+      return `<li class="${have ? "have" : ""}"><label><input type="checkbox" data-common="${idx}" data-group="${esc(group)}"${have ? " checked disabled" : keep.has(String(idx)) ? " checked" : ""}><span class="cn">${esc(c.name)}</span></label>
+        <small>${esc(suggestText(c))} · ${whoText(c.who)}</small>${have ? '<span class="chip okchip">Added</span>' : `<button class="linkbtn" data-commonedit="${idx}">Change first</button>`}</li>`;
+    }).join("");
+    const left = list.filter(c => !haveChore(c.name)).length;
+    return `<div class="cgroup"><div class="cg-head"><span class="mlab">${esc(group)}</span>${left ? `<button class="linkbtn" data-commonall="${esc(group)}">Tick all</button>` : '<span class="cg-sub">all added</span>'}</div><ul class="commonlist">${rows}</ul></div>`;
+  }).join("");
+  const who = document.getElementById("common-who"); const cur = who.value || "suggested";
+  who.innerHTML = `<option value="suggested">As suggested (anyone or take turns)</option><option value="">Anyone</option><option value="rotate">Take turns</option>` + people.map(p => `<option value="${esc(p.id)}">${esc(p.name)}</option>`).join("");
+  who.value = [...who.options].some(o => o.value === cur) ? cur : "suggested";
+  document.getElementById("ch-names").innerHTML = COMMON_FLAT.map(c => `<option value="${esc(c.name)}">`).join("");
+  updateCommonCount();
+}
+function updateCommonCount(){
+  const n = document.querySelectorAll("input[data-common]:checked:not(:disabled)").length;
+  const b = document.getElementById("commonAdd"); if (!b) return;
+  b.textContent = n ? `Add ${n} chore${n > 1 ? "s" : ""}` : "Add ticked chores";
+}
+// Fill how often, which days and who from a common chore's suggestion
+function applySuggestion(c){
+  document.getElementById("ch-freq").value = c.freq;
+  renderChoreForm();
+  document.getElementById("ch-who").value = c.who || "";
+  document.querySelectorAll('input[name="chday"]').forEach(x => x.checked = (c.days || []).includes(+x.value));
   renderChoreForm();
 }
 
@@ -524,12 +632,31 @@ document.addEventListener("click", async e => {
     document.getElementById("choreForm").scrollIntoView({block: "center"});
   }
   if (b.id === "choreCancel") resetChoreForm();
-  if (b.id === "choreStarter" && canSave()){
-    const have = new Set(chores.map(c => c.name.toLowerCase()));
-    const add = STARTER_CHORES.filter(c => !have.has(c.name.toLowerCase()));
-    const base = Date.now();
-    for (const [i, c] of add.entries()) await db.collection("chores").add({...c, days: c.days || [], start: dkey(thisMonday()), created: base + i});
-    document.getElementById("choreMsg").textContent = add.length ? `Added ${add.length} chores. Edit or remove any of them below.` : "You already have all of them.";
+  if (b.id === "choreStarter"){ const pnl = document.getElementById("commonPanel"); pnl.open = true; pnl.scrollIntoView({block: "start"}); }
+  if (d.commonall){
+    const boxes = [...document.querySelectorAll(`input[data-common][data-group="${d.commonall}"]:not(:disabled)`)];
+    const on = boxes.some(x => !x.checked); boxes.forEach(x => x.checked = on); updateCommonCount();
+  }
+  if (d.commonedit !== undefined){
+    const c = COMMON_FLAT[+d.commonedit]; resetChoreForm();
+    document.getElementById("ch-name").value = c.name;
+    applySuggestion(c);
+    document.getElementById("choreFormTitle").textContent = "Add a chore";
+    document.getElementById("choreMsg").textContent = "Change anything you like, then tap Add chore.";
+    document.getElementById("choreForm").scrollIntoView({block: "center"});
+  }
+  if (b.id === "commonAdd" && canSave()){
+    const msg = document.getElementById("commonMsg");
+    const picked = [...document.querySelectorAll("input[data-common]:checked:not(:disabled)")].map(x => COMMON_FLAT[+x.dataset.common]);
+    if (!picked.length){ msg.textContent = "Tick at least one chore first."; return; }
+    const whoAll = document.getElementById("common-who").value;
+    b.disabled = true; const base = Date.now();
+    for (const [i, c] of picked.entries()){
+      const who = whoAll === "suggested" ? c.who : whoAll;
+      await db.collection("chores").add({name: c.name, freq: c.freq, days: c.days, who, start: dkey(thisMonday()), created: base + i});
+    }
+    b.disabled = false;
+    msg.textContent = `Added ${picked.length} chore${picked.length > 1 ? "s" : ""}. They're on the calendar now; edit any of them in the list below.`;
   }
   if (d.addlist){
     const msg = document.getElementById("addListMsg");
@@ -624,6 +751,10 @@ document.addEventListener("submit", async e => {
 document.addEventListener("change", async e => {
   const c = e.target; const d = c.dataset || {};
   if (c.id === "ch-freq") renderChoreForm();
+  if (d.common !== undefined) updateCommonCount();
+  if (c.id === "ch-name" && !document.getElementById("ch-id").value){
+    const m = COMMON_FLAT.find(x => x.name.toLowerCase() === c.value.trim().toLowerCase()); if (m) applySuggestion(m);
+  }
   if (c.id === "meSel"){ me = c.value; try{ localStorage.setItem("hh-me", me); }catch{} }
   if (!canSave()) return;
   if (d.chore){
