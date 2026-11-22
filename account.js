@@ -13,6 +13,46 @@ const APP_URL = location.origin + location.pathname.replace(/index\.html$/, "");
 const ROLE_NAMES = {owner: "Owner", adult: "Adult", kid: "Kid"};
 const kidCanWrite = p => /^(done|shop)\//.test(p);
 
+/* Bot protection (Cloudflare Turnstile) on sign up, sign in and password reset.
+   The site key is public. Leave it empty to switch the check off.
+   Turn CAPTCHA on in Supabase (Authentication → Attack Protection) only once this key is set and live. */
+const TURNSTILE_SITE_KEY = "";
+const captcha = {id: null, token: ""};
+let turnstileLoading = null;
+function loadTurnstile(){
+  if (window.turnstile) return Promise.resolve(window.turnstile);
+  return turnstileLoading || (turnstileLoading = new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"; sc.async = true;
+    sc.onload = () => res(window.turnstile);
+    sc.onerror = () => { turnstileLoading = null; rej(new Error("captcha_load")); };
+    document.head.appendChild(sc);
+  }));
+}
+async function mountCaptcha(){
+  const el = document.getElementById("captchaBox"); if (!el || !TURNSTILE_SITE_KEY) return;
+  captcha.token = "";
+  try{
+    const ts = await loadTurnstile();
+    if (!document.contains(el) || el.dataset.ready) return;
+    if (captcha.id != null){ try{ ts.remove(captcha.id); }catch{} }
+    el.dataset.ready = "1";
+    captcha.id = ts.render(el, {sitekey: TURNSTILE_SITE_KEY, theme: "auto", size: "flexible",
+      callback: t => { captcha.token = t; }, "expired-callback": () => { captcha.token = ""; }, "error-callback": () => { captcha.token = ""; }});
+  }catch{ el.textContent = "Couldn't load the security check. Check your internet connection, then go back and try again."; }
+}
+function resetCaptcha(){
+  captcha.token = "";
+  if (window.turnstile && captcha.id != null){ try{ window.turnstile.reset(captcha.id); }catch{} }
+}
+// Wait (up to 20 seconds) for the security check to finish, then hand over its one-time token
+async function captchaToken(){
+  if (!TURNSTILE_SITE_KEY) return undefined;
+  for (let i = 0; i < 80 && !captcha.token; i++) await new Promise(r => setTimeout(r, 250));
+  if (!captcha.token) throw new Error("captcha_needed");
+  return captcha.token;
+}
+
 function toast(text, ms = 4000){
   const old = document.getElementById("hhToast"); if (old) old.remove();
   const bar = document.createElement("div"); bar.id = "hhToast"; bar.className = "updatebar"; bar.setAttribute("role", "status");
@@ -22,6 +62,9 @@ function toast(text, ms = 4000){
 function friendlyError(err){
   const m = String((err && (err.message || err.error_description)) || err || "");
   if (!navigator.onLine) return "You're offline. Connect to the internet and try again.";
+  if (/captcha_needed/.test(m)) return "The security check hasn't finished. Wait a moment (or tick the box if one shows), then try again.";
+  if (/captcha_load/.test(m)) return "Couldn't load the security check. Check your internet connection and try again.";
+  if (/captcha/i.test(m)) return "The security check didn't go through. Please try again.";
   if (/invalid login/i.test(m)) return "That email and password don't match. Check them and try again.";
   if (/already registered|already been registered/i.test(m)) return "There's already a login with that email. Use Sign in instead.";
   if (/invite_not_found/.test(m)) return "That code isn't right or has run out. Check it, or ask for a new one.";
@@ -225,6 +268,7 @@ const Cloud = (() => {
   window.addEventListener("offline", () => { if (user) setState("offline"); });
   setInterval(() => { if (user && document.visibilityState === "visible") resync(); }, 120000);
 
+  const captchaToken_ = captchaToken;
   const rpc = async (fn, args) => { const {data, error} = await client().rpc(fn, args || {}); if (error) throw error; return data; };
   const redirect = () => APP_URL;
   async function afterAuth(session){
@@ -238,7 +282,8 @@ const Cloud = (() => {
     available: () => !!client(),
     checkInvite: code => rpc("check_invite", {p_code: code}),
     async signUpNew({name, family, email, password}){
-      const {data, error} = await client().auth.signUp({email, password, options: {data: {name}, emailRedirectTo: redirect()}});
+      const captchaToken = await captchaToken_();
+      const {data, error} = await client().auth.signUp({email, password, options: {data: {name}, emailRedirectTo: redirect(), captchaToken}}).finally(resetCaptcha);
       if (error) throw error;
       if (!data.session) return "confirm";
       await afterAuth(data.session);
@@ -248,7 +293,8 @@ const Cloud = (() => {
     },
     async signUpJoin({code, name, email, password}){
       if (!await rpc("check_invite", {p_code: code})) throw new Error("invite_not_found");
-      const {data, error} = await client().auth.signUp({email, password, options: {data: {name}, emailRedirectTo: redirect()}});
+      const captchaToken = await captchaToken_();
+      const {data, error} = await client().auth.signUp({email, password, options: {data: {name}, emailRedirectTo: redirect(), captchaToken}}).finally(resetCaptcha);
       if (error) throw error;
       if (!data.session) return "confirm";
       await afterAuth(data.session);
@@ -257,7 +303,8 @@ const Cloud = (() => {
       return "ok";
     },
     async signIn(email, password){
-      const {data, error} = await client().auth.signInWithPassword({email, password});
+      const captchaToken = await captchaToken_();
+      const {data, error} = await client().auth.signInWithPassword({email, password, options: {captchaToken}}).finally(resetCaptcha);
       if (error) throw error;
       await afterAuth(data.session); await start(user);
     },
@@ -278,7 +325,7 @@ const Cloud = (() => {
       if (recovery || wasTemp){ recovery = false; notify(); }
     },
     resetPassword: uid => rpc("reset_member_password", {p_user: uid}),
-    async reset(email){ const {error} = await client().auth.resetPasswordForEmail(email, {redirectTo: redirect()}); if (error) throw error; },
+    async reset(email){ const captchaToken = await captchaToken_(); const {error} = await client().auth.resetPasswordForEmail(email, {redirectTo: redirect(), captchaToken}).finally(resetCaptcha); if (error) throw error; },
     async signOut(){
       await flush().catch(() => {});
       stopSync(); clearPhone();
@@ -324,7 +371,8 @@ const field = (id, label, attrs = "", hint = "") => `<label>${label}${hint ? ` <
 const pw = (id, label = "Password", hint = "(at least 8 characters)", ac = "new-password") => field(id, label, `type="password" minlength="${ac === "current-password" ? 6 : 8}" autocomplete="${ac}" required`, hint);
 const privacyLink = '<p class="tip">By signing up you agree to how your data is kept, explained in the <button type="button" class="linkbtn" data-showprivacy="1">privacy notice</button>.</p>';
 
-function renderAccount(){
+function renderAccount(){ renderAccountInner(); if (document.getElementById("captchaBox")) mountCaptcha(); }
+function renderAccountInner(){
   const el = document.getElementById("acctBody"); if (!el) return;
   const u = Cloud.user, f = Cloud.fam;
   document.getElementById("loginsPanel").hidden = !f;
@@ -388,6 +436,7 @@ function renderAccount(){
         ${field("sn-family", "Family name", 'maxlength="40" required placeholder="e.g. Smith"', "(shown as \"Smith family\")")}
         ${field("sn-email", "Email", 'type="email" autocomplete="username" required')}
         ${pw("sn-pass")}
+        <div class="captcha" id="captchaBox"></div>
         <div class="row"><button class="btn" type="submit" id="authBtn">Create my family</button><span class="tip" id="authMsg"></span></div>
         ${privacyLink}
       </form>${back}`;
@@ -402,6 +451,7 @@ function renderAccount(){
         ${field("sj-name", "Your name", 'maxlength="30" autocomplete="given-name" required')}
         ${field("sj-email", "Email", 'type="email" autocomplete="username" required')}
         ${pw("sj-pass")}
+        <div class="captcha" id="captchaBox"></div>
         <div class="row"><button class="btn" type="submit" id="authBtn">Join family</button><span class="tip" id="authMsg"></span></div>
         ${privacyLink}
       </form>
@@ -420,7 +470,7 @@ function renderAccount(){
       <div class="row" style="margin-top:12px"><button type="button" class="btn" data-authgo="signin">Go to Sign in</button></div>
       <details class="sub-d"><summary>I'm the family's only owner</summary>
         <p class="tip">Try an email reset link. If no email arrives, ask the person who shared Household Helper with you for help.</p>
-        <form class="authform" id="resetForm">${field("rs-email", "Email", 'type="email" autocomplete="username" required')}
+        <form class="authform" id="resetForm">${field("rs-email", "Email", 'type="email" autocomplete="username" required')}<div class="captcha" id="captchaBox"></div>
         <div class="row"><button class="btn ghost" type="submit" id="authBtn">Email me a reset link</button><span class="tip" id="authMsg"></span></div></form>
       </details>${back}`;
     return;
@@ -429,6 +479,7 @@ function renderAccount(){
     <form class="authform" id="signinForm">
       ${field("si-email", "Email", 'type="email" autocomplete="username" required')}
       ${pw("si-pass", "Password", "", "current-password")}
+      <div class="captcha" id="captchaBox"></div>
       <div class="row"><button class="btn" type="submit" id="authBtn">Sign in</button><span class="tip" id="authMsg"></span></div>
     </form>
     <p class="tip"><button type="button" class="linkbtn" data-authgo="reset">Forgot your password?</button></p>${back}`;
