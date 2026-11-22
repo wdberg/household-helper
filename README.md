@@ -18,6 +18,15 @@ Open https://wdberg.github.io/household-helper/ on your phone:
 
 ## Family accounts
 
-Each family creates one account (email and password) on the Family & sign in tab, and everyone in the family signs in with it on their own phone. Everything syncs between their phones, and each family's data is private to that account. The app still works offline and syncs when it's back online.
+Everyone gets their own login and belongs to one family:
 
-Data is stored in the `household-helper` Supabase project, in a single `docs` table protected by row-level security (each account can only read and write its own rows).
+1. One adult opens **Family & sign in** → **Start a new family**. They become the family's owner.
+2. They add everyone in the house under **Everyone in the house**.
+3. Under **Invite someone** they choose Adult or Kid, create a 6-character code and tap **Share invite**. A code works for 7 days, for any number of people.
+4. Others open the invite link, install the app, and tap **Join my family**. The code is filled in for them.
+
+Roles: the **owner** can do everything, including changing roles and deleting the family; **adults** can change everything and invite people; **kids** can see everything, tick chores and use shopping lists.
+
+Each person can change their password, sign out, or delete their login. The owner can delete the whole family and all its data. The app has step-by-step instructions and a privacy notice on the Family & sign in tab.
+
+Data is stored in the `household-helper` Supabase project (Sydney). Row-level security means only members of a family can read its data, and only owners and adults can change most of it. The database setup is in `supabase/family_members_and_invites.sql`.
