@@ -346,6 +346,41 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
 .commonlist li.have .cn{color:var(--muted)}
 .commonfoot{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);margin:14px -16px -16px;padding:12px 16px;display:grid;gap:10px;border-radius:0 0 var(--r) var(--r)}
 .commonfoot label{display:grid;gap:4px;font-size:13px;font-weight:600;max-width:360px}
+/* Accounts: sign-up choices, logins, invites, instructions, privacy */
+.choices{display:grid;gap:10px;margin-top:10px}
+.choices.two{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.choice{display:grid;gap:2px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;font:inherit;color:var(--ink)}
+.choice:hover{border-color:var(--accent)}
+.choice b{font-family:var(--display);font-size:17px}
+.choice span{color:var(--muted);font-size:13.5px}
+.choicebox{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:14px;max-width:none}
+.choicebox h4{margin:0;font-family:var(--display);font-size:16px}
+.okmsg{color:var(--accent);font-weight:600} .badmsg{color:var(--warn);font-weight:600}
+.inlineform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:8px 0}
+.inlineform label{display:grid;gap:4px;font-size:13px;font-weight:600;flex:1 1 200px;min-width:0}
+.inlineform input{font-size:16px}
+.lrow{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--sunk)}
+.lrow .lm{flex:1 1 180px;min-width:0;display:grid;gap:2px}
+.lrow .lm small{color:var(--muted);font-size:12.5px}
+.codebox{margin-top:12px;background:var(--accent-soft);border-radius:var(--r);padding:14px 16px;display:grid;gap:4px;justify-items:start}
+.code{font-family:var(--display);font-size:32px;letter-spacing:.18em;font-variant-numeric:tabular-nums}
+.code.sm{font-size:16px;letter-spacing:.12em}
+.howto summary,#privacy summary{cursor:pointer;display:grid;gap:2px}
+.howto summary h3,#privacy summary h3{display:inline}
+.howto h4,.privacy h4{font-family:var(--display);font-size:16px;margin:16px 0 4px}
+ol.steps,ul.steps{margin:8px 0 0;padding-left:22px;display:grid;gap:8px}
+ol.steps li b{display:block}
+.privacy ul{margin:4px 0 0;padding-left:20px;display:grid;gap:4px;font-size:14px}
+.sub-d{margin-top:12px;border-top:1px solid var(--sunk);padding-top:10px}
+.sub-d summary{cursor:pointer;font-weight:600}
+.danger-d summary{color:var(--warn)}
+/* Kids can see everything but only tick chores and use shopping lists */
+body.kidmode .adultonly, body.kidmode #choreStarter, body.kidmode [data-choreedit], body.kidmode [data-choredel],
+body.kidmode .pitem .qty button, body.kidmode [data-ptbatch], body.kidmode [data-ptedit], body.kidmode [data-ptdel],
+body.kidmode [data-pdel], body.kidmode [data-cookday], body.kidmode [data-evopen], body.kidmode [data-evdel],
+body.kidmode .mrow:has(select.swap), body.kidmode #tab-add, body.kidmode #tab-roster, body.kidmode #view-costs details.prices,
+body.kidmode label.restore, body.kidmode #restoreBtn, body.kidmode #view-specials .panel:has(.wadd), body.kidmode #resetPrices{display:none!important}
+body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:none;opacity:.75}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -362,7 +397,7 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
       <div class="inst" data-os="ios"><div class="mlab">iPhone</div><ol><li>Open this link in <strong>Safari</strong>.</li><li>Tap the <strong>Share</strong> button (square with an arrow).</li><li>Scroll down and tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li></ol></div>
       <div class="inst" data-os="android"><div class="mlab">Android</div><ol><li>Open this link in <strong>Chrome</strong>.</li><li>Tap the <strong>⋮</strong> menu in the top corner.</li><li>Tap <strong>Add to Home screen</strong> (or <strong>Install app</strong>), then <strong>Add</strong>.</li></ol></div>
     </div>
-    <p class="tip">Once installed, always open it from the app icon. Everything you change is saved on this phone. Sign in on the Family tab to share it with everyone in your family. On iPhone the app keeps its data separate from Safari, so sign in again inside the installed app.</p>
+    <p class="tip">Once installed, always open it from the app icon. Everything you change is saved on this phone. To share it with your family, open the Family &amp; sign in tab; it explains each step. On iPhone the installed app keeps its data separate from Safari, so sign in inside the installed app.</p>
   </section>
 
   <div class="acctbar" id="acctBar"></div>
@@ -424,7 +459,7 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
     <section id="view-chores" hidden>
       <h2>Chores</h2>
       <p class="sub">Your household's chore list. Each chore shows on the calendar on the days it's due. Choose one person, or Take turns to rotate it through the family each week.</p>
-      <div class="panel">
+      <div class="panel adultonly">
         <h3 id="choreFormTitle">Add a chore</h3>
         <form class="add chform" id="choreForm">
           <input type="hidden" id="ch-id">
@@ -439,7 +474,7 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
           <div class="row"><button class="btn" type="submit" id="choreSave">Add chore</button><button class="btn ghost" type="button" id="choreCancel" hidden>Cancel</button><span class="tip" id="choreMsg"></span></div>
         </form>
       </div>
-      <details class="panel commonpanel" id="commonPanel">
+      <details class="panel commonpanel adultonly" id="commonPanel">
         <summary><h3>Choose from common chores</h3><span class="tip">Tick the ones your household does and add them in one go. Each comes with a suggested day and how often, which you can change later.</span></summary>
         <div id="commonBody"></div>
         <div class="commonfoot">
@@ -459,7 +494,7 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
         <h3>Use it up</h3>
         <div id="useSoon"></div>
       </div>
-      <div class="panel">
+      <div class="panel adultonly">
         <h3 id="pantryFormTitle">Add to the pantry</h3>
         <form class="add pform" id="pantryForm">
           <input type="hidden" id="pt-id">
@@ -481,12 +516,55 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
 
     <section id="view-family" hidden>
       <h2>Family &amp; sign in</h2>
+
+      <details class="panel howto" id="howto">
+        <summary><h3>How to set up your family and sign in</h3><span class="tip">Step-by-step instructions</span></summary>
+        <ol class="steps">
+          <li><b>One adult starts the family.</b> On this tab, tap <strong>Start a new family</strong>. Enter your name, your family's name, your email and a password. You become the family's owner.</li>
+          <li><b>Add everyone who lives in the house.</b> Under <strong>Everyone in the house</strong>, type each person's name and tap <strong>Add</strong>. Include little ones who won't use the app. These names are used for who cooks, chores and shopping lists.</li>
+          <li><b>Invite the people who'll use the app.</b> Under <strong>Invite someone</strong>, choose <strong>Adult</strong> or <strong>Kid</strong>, tap <strong>Create invite code</strong>, then <strong>Share invite</strong> to send it by message. One code works for 7 days and for as many people as you like.</li>
+          <li><b>They install the app and join.</b> They open the link in the message on their phone, add the app to their home screen (iPhone: Safari → Share → <strong>Add to Home Screen</strong>; Android: Chrome → <strong>Install app</strong>), then go to <strong>Family &amp; sign in</strong> → <strong>Join my family</strong>. The code is filled in for them; they add their name, email and a password.</li>
+          <li><b>Set who cooks each night.</b> Under <strong>Who cooks each night</strong>, pick the usual cook for each day. Change any single night on the Calendar.</li>
+        </ol>
+        <h4>Signing in on another phone or tablet</h4>
+        <ol class="steps">
+          <li>Install the app on it the same way.</li>
+          <li>Go to <strong>Family &amp; sign in</strong> → <strong>Sign in</strong>, and use your own email and password.</li>
+          <li>Everything appears straight away. Changes made on any phone show on the others within a few seconds.</li>
+        </ol>
+        <h4>Adults and kids</h4>
+        <ul class="steps">
+          <li><b>Owner</b> (whoever started the family): can do everything, including changing roles and deleting the family.</li>
+          <li><b>Adults</b>: can change everything and invite people.</li>
+          <li><b>Kids</b>: can see everything, tick off chores (and earn stars) and add to shopping lists, but can't change plans, chores or settings.</li>
+        </ul>
+        <h4>Forgot your password?</h4>
+        <p class="tip">On the Sign in screen, tap <strong>Forgot your password?</strong> and we'll email a reset link. If it doesn't arrive, the family's owner can remove your login and send you a new invite code, so you can sign up again with a new password. Your family's plans and lists aren't affected.</p>
+      </details>
+
       <div class="panel" id="acctPanel"><div id="acctBody"></div></div>
+
+      <div class="panel" id="loginsPanel" hidden>
+        <h3>Who can sign in</h3>
+        <p class="tip">Everyone with their own login to this family.</p>
+        <div id="loginsBody"></div>
+      </div>
+
+      <div class="panel" id="invitePanel" hidden>
+        <h3>Invite someone</h3>
+        <p class="tip">Make a code and send it to them. They use it to join your family with their own login.</p>
+        <div class="filters seg"><button data-invrole="adult" aria-pressed="true">Adult</button><button data-invrole="kid" aria-pressed="false">Kid</button></div>
+        <p class="tip" id="inviteRoleHelp">Adults can change everything and invite others.</p>
+        <div class="row"><button class="btn" id="makeInvite">Create invite code</button><span class="tip" id="inviteMsg"></span></div>
+        <div id="inviteNew"></div>
+        <div id="inviteList"></div>
+      </div>
+
       <div class="panel">
-        <h3>Family members</h3>
-        <p class="tip">Add everyone who lives here. Names are used for the cooking roster, chores and shopping lists.</p>
+        <h3>Everyone in the house</h3>
+        <p class="tip">Add everyone who lives here, including anyone without a login. Names are used for the cooking roster, chores and shopping lists.</p>
         <div id="peopleBody"></div>
-        <form class="padd" id="personForm"><input id="p-name" maxlength="30" placeholder="Name, e.g. Mia" aria-label="New family member's name" required><button class="btn" type="submit">Add</button></form>
+        <form class="padd adultonly" id="personForm"><input id="p-name" maxlength="30" placeholder="Name, e.g. Mia" aria-label="New family member's name" required><button class="btn" type="submit">Add</button></form>
         <p class="tip" id="peopleMsg"></p>
       </div>
       <div class="panel">
@@ -494,6 +572,45 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
         <p class="tip">The usual cook for each night of the week. Change any single night on the calendar.</p>
         <div class="cookgrid" id="cookBody"></div>
       </div>
+
+      <div class="panel" id="myLoginPanel" hidden>
+        <h3>Your login</h3>
+        <div id="myLoginBody"></div>
+      </div>
+
+      <details class="panel" id="privacy">
+        <summary><h3>Privacy notice</h3><span class="tip">What's stored, where, and who can see it</span></summary>
+        <div class="privacy">
+          <h4>What's stored</h4>
+          <ul>
+            <li>What your family adds to the app: meal plan changes, recipes, calendar events, chores, shopping lists, pantry items, prices and settings.</li>
+            <li>For each login: the person's name, email address and role (owner, adult or kid). Passwords are never stored as typed; they're kept scrambled (hashed) so no one can read them.</li>
+          </ul>
+          <h4>Where it's kept</h4>
+          <ul>
+            <li>With Supabase, a database service, in its Sydney, Australia data centre. Data travels over encrypted (HTTPS) connections, and Supabase encrypts the data it stores.</li>
+            <li>A copy is also kept on each signed-in phone so the app works offline. Signing out removes it from that phone.</li>
+          </ul>
+          <h4>Who can see it</h4>
+          <ul>
+            <li>Only people signed in to your family. The database itself blocks every other family and anyone not signed in.</li>
+            <li>The person who runs this app can access the database to keep it working. It isn't end-to-end encrypted.</li>
+            <li>There are no ads or tracking, and your data is never sold or shared.</li>
+          </ul>
+          <h4>Other services the app uses</h4>
+          <ul>
+            <li>Google Fonts (for the app's lettering) and jsDelivr (for the barcode reader) are loaded from their servers, which see your phone's internet address.</li>
+            <li>Tapping <strong>Find</strong> opens the supermarket's own website or app, with its own privacy policy.</li>
+          </ul>
+          <h4>Your choices</h4>
+          <ul>
+            <li>Any adult can remove someone from the family. Anyone can delete their own login under <strong>Your login</strong>.</li>
+            <li>The family's owner can delete the whole family: everything it has saved and every login in it are permanently deleted.</li>
+            <li>Use <strong>Back up &amp; restore</strong> at the bottom of the page to keep your own copy.</li>
+          </ul>
+          <p class="tip">Questions? Ask the person who shared Household Helper with you.</p>
+        </div>
+      </details>
     </section>
 
     <section id="view-recipes" hidden>
@@ -1956,6 +2073,7 @@ if (isStandalone()){ const c = document.getElementById("installCard"); if (c) c.
 if (navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
 </script>
 <script src="family.js"></script>
+<script src="account.js"></script>
 <script src="pantry.js"></script>
 
 </body>
