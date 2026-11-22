@@ -240,6 +240,73 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
   .mrow{grid-template-columns:1fr;gap:2px}
   form.add .two{grid-template-columns:1fr}
 }
+/* Family: sign-in bar, calendar, chores, shopping lists */
+.acctbar{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}
+.acctbar .who{display:flex;gap:8px;align-items:center;min-width:0}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}
+.sdot.on{background:var(--accent)} .sdot.wait{background:var(--gf)}
+.btn.sm{padding:5px 12px;font-size:13px}
+.pdot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;background:var(--c,var(--muted))}
+.pchip{display:inline-flex;align-items:center;gap:6px;padding:2px 10px 2px 8px;border-radius:99px;background:var(--sunk);font-size:13px;font-weight:600;color:var(--ink);border:1px solid transparent;white-space:nowrap}
+button.pchip{cursor:pointer;font-family:var(--body)}
+button.pchip:hover{border-color:var(--accent)}
+.pchip.none{font-weight:500;color:var(--muted)}
+.calday .meals{gap:6px}
+.calday.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.clist{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.clist li{display:flex;gap:8px;align-items:center;min-width:0}
+.clist input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);margin:0;flex:none}
+.clist label{display:flex;gap:8px;align-items:center;cursor:pointer;min-width:0;flex:1}
+.clist .cn{overflow-wrap:anywhere}
+.clist li.done .cn{text-decoration:line-through;color:var(--muted)}
+.clist .pchip{font-size:12px;padding:0 8px 0 6px}
+.evt{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.evt .et{font-weight:600}
+.evt .tm{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.xbtn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:6px}
+.xbtn:hover{color:var(--warn);background:var(--sunk)}
+.evform{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.evform input[type=text]{flex:1 1 140px;min-width:0}
+.evform input[type=time]{width:110px}
+.month{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.month .mh{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;text-align:center;padding:4px 0}
+.mcell{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 6px;min-height:74px;display:flex;flex-direction:column;gap:3px;text-align:left;font:inherit;color:inherit;cursor:pointer;min-width:0}
+.mcell:hover{border-color:var(--accent)}
+.mcell.other{opacity:.45}
+.mcell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mcell.away{background:var(--sunk);border-style:dashed}
+.mcell .md{font-weight:700;font-size:13px}
+.mcell .mk{display:flex;gap:4px;align-items:center;font-size:11.5px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mcell .mc{font-size:11px;color:var(--muted)}
+.shoplists{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:10px}
+.slist{border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0;background:var(--bg)}
+.slist h4{margin:0 0 6px;display:flex;gap:8px;align-items:center;font-size:15px}
+.slist form{display:flex;gap:6px;margin-top:8px}
+.slist form input{flex:1;min-width:0}
+.stars{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.star{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:4px 12px 4px 8px;font-weight:600}
+.star .sc{font-family:var(--display);font-variant-numeric:tabular-nums;color:var(--gf)}
+.daypick{border:0;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.daypick legend{font-size:13px;font-weight:600;margin-bottom:4px;padding:0}
+.daypick label{display:inline-flex;align-items:center;gap:4px;font-weight:500;font-size:13.5px;background:var(--sunk);border-radius:99px;padding:4px 10px;cursor:pointer}
+.daypick input{accent-color:var(--accent);margin:0}
+.chrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px}
+.chrow .cm{min-width:0}
+.chrow .cm b{display:block;overflow-wrap:anywhere}
+.chrow small{color:var(--muted);font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:2px}
+.chrow .acts{display:flex;gap:10px}
+.prow{display:flex;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--sunk)}
+.prow input[type=text]{flex:1;min-width:0}
+.prow input[type=color]{width:34px;height:30px;padding:2px;border-radius:8px}
+.padd{display:flex;gap:8px;margin-top:10px}
+.padd input{flex:1;min-width:0}
+.cookgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}
+.cookgrid label{display:grid;gap:4px;font-size:13px;font-weight:600}
+.authform{display:grid;gap:10px;max-width:420px;margin-top:8px}
+.authform label{display:grid;gap:4px;font-size:13px;font-weight:600}
+.authform input{font-size:16px}
+.pickmenu{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+@media (max-width:520px){.mcell{min-height:56px;padding:4px}.mcell .mk span:not(.pdot){display:none}.mcell .mc{display:none}}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -256,11 +323,16 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
       <div class="inst" data-os="ios"><div class="mlab">iPhone</div><ol><li>Open this link in <strong>Safari</strong>.</li><li>Tap the <strong>Share</strong> button (square with an arrow).</li><li>Scroll down and tap <strong>Add to Home Screen</strong>, then <strong>Add</strong>.</li></ol></div>
       <div class="inst" data-os="android"><div class="mlab">Android</div><ol><li>Open this link in <strong>Chrome</strong>.</li><li>Tap the <strong>⋮</strong> menu in the top corner.</li><li>Tap <strong>Add to Home screen</strong> (or <strong>Install app</strong>), then <strong>Add</strong>.</li></ol></div>
     </div>
-    <p class="tip">Once installed, always open it from the app icon. Everything you change is saved on this phone only, and on iPhone the app keeps its data separate from Safari. Use Back up at the bottom of the page now and then.</p>
+    <p class="tip">Once installed, always open it from the app icon. Everything you change is saved on this phone. Sign in on the Family tab to share it with everyone in your family. On iPhone the app keeps its data separate from Safari, so sign in again inside the installed app.</p>
   </section>
+
+  <div class="acctbar" id="acctBar"></div>
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-week" aria-selected="true" data-view="week">This week</button>
+    <button role="tab" id="tab-calendar" aria-selected="false" data-view="calendar">Calendar</button>
+    <button role="tab" id="tab-chores" aria-selected="false" data-view="chores">Chores</button>
+    <button role="tab" id="tab-family" aria-selected="false" data-view="family">Family &amp; sign in</button>
     <button role="tab" id="tab-roster" aria-selected="false" data-view="roster">Roster</button>
     <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
     <button role="tab" id="tab-ideas" aria-selected="false" data-view="ideas">Breakfast, lunch &amp; snacks</button>
@@ -286,6 +358,65 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
       <div class="weekcost" id="weekCost"></div>
     </section>
 
+    <section id="view-calendar" hidden>
+      <div class="panel-head"><h2>Family calendar</h2><div class="filters seg" id="calMode" aria-label="Calendar view"><button data-calmode="week" aria-pressed="true">Week</button><button data-calmode="month" aria-pressed="false">Month</button></div></div>
+      <p class="sub">Who's cooking each night, the chores for each day, and anything else on. Tap a name to change who cooks that night. Tick a chore when it's done to earn a star.</p>
+      <div class="weeknav">
+        <button class="btn ghost" id="calPrev" aria-label="Previous">←</button>
+        <div class="wk"><div id="calLabel" class="wl"></div><button class="linkbtn" id="calToday">Back to today</button></div>
+        <button class="btn ghost" id="calNext" aria-label="Next">→</button>
+      </div>
+      <p class="tip" id="calHint"></p>
+      <div id="calBody"></div>
+      <div class="panel" id="calShopPanel">
+        <div class="panel-head"><h3>Shopping lists this week</h3><span class="tip" id="calShopCount"></span></div>
+        <p class="tip">Everyone has their own list. Add what you need for the week; it also shows in the order list on Costs &amp; shopping.</p>
+        <div class="shoplists" id="calShop"></div>
+      </div>
+      <div class="panel">
+        <h3>Chore stars this week</h3>
+        <div class="stars" id="calStars"></div>
+      </div>
+    </section>
+
+    <section id="view-chores" hidden>
+      <h2>Chores</h2>
+      <p class="sub">Your household's chore list. Each chore shows on the calendar on the days it's due. Choose one person, or Take turns to rotate it through the family each week.</p>
+      <div class="panel">
+        <h3 id="choreFormTitle">Add a chore</h3>
+        <form class="add chform" id="choreForm">
+          <input type="hidden" id="ch-id">
+          <label>Chore<input id="ch-name" required maxlength="80" placeholder="e.g. Take the bins out"></label>
+          <div class="two">
+            <label>Who<select id="ch-who"></select></label>
+            <label>How often<select id="ch-freq"><option value="daily">Every day</option><option value="weekly" selected>Weekly</option><option value="fortnightly">Fortnightly</option><option value="monthly">Monthly</option><option value="once">Once</option></select></label>
+          </div>
+          <fieldset class="daypick" id="ch-days-row"><legend>On</legend></fieldset>
+          <label id="ch-date-row">Starting<input id="ch-date" type="date"></label>
+          <div class="row"><button class="btn" type="submit" id="choreSave">Add chore</button><button class="btn ghost" type="button" id="choreCancel" hidden>Cancel</button><span class="tip" id="choreMsg"></span></div>
+        </form>
+      </div>
+      <div class="panel-head"><h3>Chore list</h3><button class="btn ghost" id="choreStarter">Add common chores</button></div>
+      <div id="choreList"></div>
+    </section>
+
+    <section id="view-family" hidden>
+      <h2>Family &amp; sign in</h2>
+      <div class="panel" id="acctPanel"><div id="acctBody"></div></div>
+      <div class="panel">
+        <h3>Family members</h3>
+        <p class="tip">Add everyone who lives here. Names are used for the cooking roster, chores and shopping lists.</p>
+        <div id="peopleBody"></div>
+        <form class="padd" id="personForm"><input id="p-name" maxlength="30" placeholder="Name, e.g. Mia" aria-label="New family member's name" required><button class="btn" type="submit">Add</button></form>
+        <p class="tip" id="peopleMsg"></p>
+      </div>
+      <div class="panel">
+        <h3>Who cooks each night</h3>
+        <p class="tip">The usual cook for each night of the week. Change any single night on the calendar.</p>
+        <div class="cookgrid" id="cookBody"></div>
+      </div>
+    </section>
+
     <section id="view-recipes" hidden>
       <h2>Recipe library</h2>
       <div class="qbar"><input type="search" class="q" id="q-recipes" data-q="recipes" placeholder="Search recipes, e.g. salmon, soup" autocomplete="off" aria-label="Search recipes, e.g. salmon, soup"><span class="qcount" id="qc-recipes"></span></div>
@@ -297,7 +428,7 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
     <section id="view-ideas" hidden>
       <h2>Quick ideas</h2>
       <div class="qbar"><input type="search" class="q" id="q-ideas" data-q="ideas" placeholder="Search ideas and swaps, e.g. eggs, pasta" autocomplete="off" aria-label="Search ideas and swaps, e.g. eggs, pasta"><span class="qcount" id="qc-ideas"></span></div>
-      <p class="sub">Simple, no-recipe-needed options. GF means safe as written; check labels on packaged items.</p>
+      <p class="sub">Breakfasts, lunches and snacks. Tap <strong>Recipe &amp; ingredients</strong> for the full method and shopping list. GF means safe as written; check labels on packaged items.</p>
       <div class="ideas" id="ideas"></div>
       <section style="margin-top:16px" class="ideas"><section>
         <h3>Gluten-free swaps</h3>
@@ -444,6 +575,7 @@ dialog::backdrop{background:rgba(10,20,12,.5)}
 
 <dialog id="dlg"><div class="dlg" id="dlgBody"></div></dialog>
 
+<script src="vendor/supabase.js"></script>
 <script>
 /* ---------- Phone storage: everything is saved in this phone's browser ---------- */
 const LS_KEY = "household-helper-data-v1";
@@ -456,9 +588,11 @@ const localDb = (() => {
   const meta = {fromCache:false, hasPendingWrites:false};
   const snap = path => ({id: path.split("/").pop(), exists: path in store, data: () => store[path] ? clone(store[path]) : undefined, metadata: meta});
   const inColl = (coll, key) => key.startsWith(coll + "/") && !key.slice(coll.length + 1).includes("/");
-  function persist(){
+  let onWrite = null; // set by the family sync: called with (path, data or null) for every change made on this phone
+  function persist(path){
     try{ localStorage.setItem(LS_KEY, JSON.stringify(store)); }
     catch{ throw {code:"unavailable", message:"Phone storage is full or blocked"}; }
+    if (path && onWrite) onWrite(path, path in store ? clone(store[path]) : null);
     setTimeout(() => listeners.forEach(l => l.fire()), 0);
   }
   function querySnap(coll, order){
@@ -471,9 +605,9 @@ const localDb = (() => {
     return {
       id: path.split("/").pop(), path,
       get: async () => snap(path),
-      set: async d => { store[path] = clone(d); persist(); },
-      update: async d => { if (!(path in store)) throw {code:"invalid_argument"}; store[path] = {...store[path], ...clone(d)}; persist(); },
-      delete: async () => { delete store[path]; persist(); },
+      set: async d => { store[path] = clone(d); persist(path); },
+      update: async d => { if (!(path in store)) throw {code:"invalid_argument"}; store[path] = {...store[path], ...clone(d)}; persist(path); },
+      delete: async () => { delete store[path]; persist(path); },
       onSnapshot: (cb) => listen(() => cb(snap(path))),
       collection: p => collRef(path + "/" + p)
     };
@@ -496,7 +630,11 @@ const localDb = (() => {
   return {
     doc: docRef, collection: collRef,
     _export: () => clone(store),
-    _import: data => { store = clone(data); persist(); }
+    _import: data => { const old = Object.keys(store); store = clone(data); persist(); if (onWrite){ old.forEach(k => { if (!(k in store)) onWrite(k, null); }); Object.keys(store).forEach(k => onWrite(k, clone(store[k]))); } },
+    // Used by the family sync: apply changes that came from the family account, without sending them back
+    _onWrite: fn => { onWrite = fn; },
+    _apply: changes => { changes.forEach(([k, v]) => { if (v == null) delete store[k]; else store[k] = clone(v); }); persist(); },
+    _replace: data => { store = clone(data); persist(); }
   };
 })();
 function storageWorks(){
@@ -529,6 +667,51 @@ const BUILTIN = [
   {id:"rice-paper-rolls",type:"lunch",title:"Lemongrass chicken rice paper rolls",source:"RecipeTin Eats",url:"https://www.recipetineats.com/lemongrass-chicken-rice-paper-rolls/",time:"40 min",left:false,key:["chicken","rice paper","vermicelli","lettuce, herbs","dipping sauce"],gf:"Rice paper and rice vermicelli are GF. Use tamari or GF hoisin in the sauce."},
   {id:"zucchini-muffins",type:"snack",title:"Cheesy zucchini muffins",source:"RecipeTin Eats",url:"https://www.recipetineats.com/cheesy-zucchini-muffins/",time:"35 min",left:true,key:["zucchini","cheese","eggs","flour"],gf:"Tagged gluten free on the site. Confirm the flour used is a GF blend."}
 ];
+
+/* Breakfast & lunch recipes, written for this app: full ingredients and method, serves 4 */
+const HH = "Household Helper";
+BUILTIN.push(
+  {id:"bf-yoghurt-bowl",type:"breakfast",title:"Greek yoghurt, berries & GF muesli",source:HH,time:"5 min",serves:4,
+   ingredients:["3 cups plain Greek yoghurt","2 cups strawberries, hulled and halved (or mixed berries)","1 cup gluten-free muesli","2 tbsp honey or maple syrup","2 tbsp pepitas or chia seeds (optional)"],
+   method:["Spoon the yoghurt into four bowls.","Top with the berries and muesli.","Drizzle with honey and scatter over the seeds.","For school or work, layer it in a jar with the muesli in a separate bag so it stays crunchy."],
+   gf:"Use a muesli labelled gluten free. Regular oats are not GF in Australia; look for oat-free or certified GF oats."},
+  {id:"bf-eggs-toast",type:"breakfast",title:"Eggs on GF toast with spinach & avo",source:HH,time:"15 min",serves:4,
+   ingredients:["8 eggs","8 slices gluten-free bread","2 avocados","2 big handfuls baby spinach","1 tbsp butter or olive oil","1 lemon","Salt and pepper"],
+   method:["Toast the GF bread.","Mash the avocado with a squeeze of lemon, salt and pepper.","Warm the butter in a non-stick pan, add the spinach and stir for 1 minute until wilted. Tip onto a plate.","Whisk the eggs with a pinch of salt. Cook in the same pan over low heat, stirring gently, until just set (or poach or boil them if you prefer).","Spread the avo on the toast, top with spinach and eggs."],
+   gf:"Toast the GF bread in a clean toaster or under the grill so it doesn't pick up crumbs from regular bread. Sweet potato rounds, sliced 1cm thick and toasted, also work."},
+  {id:"bf-chia",type:"breakfast",title:"Overnight chia pudding",source:HH,time:"5 min + overnight",serves:4,
+   ingredients:["1/2 cup chia seeds","2 cups milk (dairy, almond or coconut)","1/2 cup Greek yoghurt","2 tbsp honey or maple syrup","1 tsp vanilla extract","1 mango or 2 passionfruit, to serve"],
+   method:["Whisk the chia, milk, yoghurt, honey and vanilla in a bowl or jug.","Leave for 5 minutes, then whisk again so the seeds don't clump.","Divide between four jars, cover and refrigerate overnight (at least 4 hours).","Top with chopped mango or passionfruit pulp in the morning. Keeps 3 days in the fridge."],
+   gf:"Naturally gluten free."},
+  {id:"bf-omelette",type:"breakfast",title:"Veggie omelette",source:HH,time:"15 min",serves:2,
+   ingredients:["4 eggs","2 tbsp milk","1/2 zucchini, grated","1/2 red capsicum, diced","6 cherry tomatoes, halved","40g feta, crumbled","1 tsp olive oil","Salt and pepper"],
+   method:["Whisk the eggs and milk with a pinch of salt and pepper.","Heat the oil in a non-stick frying pan over medium heat. Cook the zucchini and capsicum for 3 minutes.","Pour in the egg and tilt the pan to spread it. Cook for 2–3 minutes, lifting the edges so the runny egg flows underneath.","Scatter over the tomatoes and feta, fold in half and slide onto a plate. Make a second batch for 4."],
+   gf:"Naturally gluten free."},
+  {id:"bf-smoothie",type:"breakfast",title:"Banana & berry smoothie",source:HH,time:"5 min",serves:4,
+   ingredients:["2 frozen bananas, in chunks","2 cups frozen mixed berries","3 cups milk","1 cup Greek yoghurt","2 tbsp peanut butter","1 tbsp honey (optional)"],
+   method:["Put everything in a blender.","Blend until smooth, adding a splash more milk if it's too thick.","Pour into glasses and serve straight away."],
+   gf:"Naturally gluten free. Leave out the peanut butter for nut-free schools if it goes in a drink bottle."},
+  {id:"bf-buckwheat",type:"breakfast",title:"Buckwheat pancakes",source:HH,time:"25 min",serves:4,
+   ingredients:["1 1/2 cups buckwheat flour","2 tsp gluten-free baking powder","1 tbsp sugar","Pinch of salt","2 eggs","1 1/2 cups milk","2 tbsp melted butter, plus extra for the pan","Berries, banana and yoghurt, to serve"],
+   method:["Whisk the buckwheat flour, baking powder, sugar and salt in a bowl.","In a jug, whisk the eggs, milk and melted butter. Pour into the flour and whisk until just smooth. Rest 5 minutes.","Heat a non-stick pan over medium heat and brush with butter.","Pour in 1/4 cup batter per pancake. Cook until bubbles appear (about 2 minutes), flip and cook 1 minute more.","Serve with fruit and yoghurt. Leftovers freeze well; reheat in the toaster."],
+   gf:"Buckwheat is gluten free despite the name. Check the baking powder is labelled GF."},
+  {id:"ln-quinoa-bowl",type:"lunch",title:"Chicken, quinoa & roast veg bowl",source:HH,time:"40 min",serves:4,left:true,
+   ingredients:["1 cup quinoa, rinsed","2 cups cooked chicken (leftover or a supermarket roast chook)","1 sweet potato, cubed","1 red capsicum, chopped","1 zucchini, chopped","2 tbsp olive oil","2 big handfuls baby spinach","1/2 cup feta","Dressing: 3 tbsp olive oil, juice of 1 lemon, 1 tsp honey, salt"],
+   method:["Heat the oven to 200°C. Toss the sweet potato, capsicum and zucchini with the oil and salt on a tray. Roast 25–30 minutes.","Meanwhile, simmer the quinoa in 2 cups water, covered, for 12 minutes. Rest 5 minutes and fluff with a fork.","Shake the dressing ingredients in a jar.","Divide the quinoa, spinach, roast veg and chicken between four containers. Top with feta.","Keep the dressing separate until eating. Keeps 3 days in the fridge."],
+   gf:"Naturally gluten free. Check the roast chook's stuffing and seasoning if you buy one."},
+  {id:"ln-tuna-bean",type:"lunch",title:"Tuna & bean salad",source:HH,time:"10 min",serves:4,
+   ingredients:["2 x 185g tins tuna in springwater, drained","2 x 400g tins cannellini beans, drained and rinsed","2 Lebanese cucumbers, diced","250g cherry tomatoes, halved","1/2 red onion, finely sliced","Small bunch parsley, chopped","3 tbsp olive oil","Juice of 1 lemon","Salt and pepper"],
+   method:["Put the beans, cucumber, tomatoes, onion and parsley in a big bowl.","Flake in the tuna.","Whisk the oil, lemon, salt and pepper, pour over and toss.","Pack into containers. It holds up well for 2 days."],
+   gf:"Naturally gluten free. Check flavoured tuna for wheat-based sauces."},
+  {id:"ln-wrap",type:"lunch",title:"GF wrap with hummus & salad",source:HH,time:"10 min",serves:4,
+   ingredients:["4 gluten-free wraps","1/2 cup hummus","2 cups shredded leftover chicken, or 4 boiled eggs, sliced","1 carrot, grated","1 Lebanese cucumber, cut into sticks","2 handfuls salad leaves","1/2 avocado, sliced (optional)"],
+   method:["Warm each wrap for 10 seconds in the microwave or a dry pan so it doesn't crack.","Spread with hummus.","Lay the chicken or egg, carrot, cucumber, leaves and avocado down the middle.","Fold in the bottom, roll up tightly and cut in half. Wrap in baking paper for lunchboxes."],
+   gf:"Use wraps labelled gluten free. GF wraps crack when cold, so warming them first is the trick."},
+  {id:"ln-frittata",type:"lunch",title:"Frittata slice",source:HH,time:"45 min",serves:6,left:true,
+   ingredients:["10 eggs","1/2 cup milk","1 zucchini, grated","1 cup baby spinach, chopped","1/2 red capsicum, diced","1 cup grated tasty cheese","1/2 cup feta","Salt and pepper"],
+   method:["Heat the oven to 180°C and line a 20 x 30cm slice tin with baking paper.","Whisk the eggs and milk with salt and pepper.","Squeeze the liquid out of the zucchini. Spread the zucchini, spinach and capsicum in the tin and scatter with both cheeses.","Pour the egg over the top.","Bake 30–35 minutes until set in the middle. Cool, then cut into 12 squares.","Keeps 3–4 days in the fridge, or freeze slices for up to 2 months."],
+   gf:"Naturally gluten free."}
+);
 
 /* 4-week dinner rotation (Mon–Fri) for the weeks Dad is home */
 const ROTATION = [
@@ -586,20 +769,20 @@ applyRoster();
 
 const IDEAS = {
   breakfast:[
-    ["Greek yoghurt, berries & GF muesli","Strawberries are in season. Check the muesli is GF oat-free or uses certified GF oats."],
-    ["Eggs on GF toast with spinach & avo","Scrambled, poached or boiled. Swap toast for sweet potato rounds."],
-    ["Overnight chia pudding","Chia, milk, a little honey. Top with mango or passionfruit."],
-    ["Veggie omelette","Zucchini, capsicum, cherry tomato, feta."],
-    ["Banana & berry smoothie","Milk or yoghurt, frozen banana, berries, spoon of peanut butter."],
-    ["Buckwheat pancakes","Buckwheat is gluten free despite the name. Top with fruit and yoghurt."]
+    ["Greek yoghurt, berries & GF muesli","Strawberries are in season. Check the muesli is GF oat-free or uses certified GF oats.","bf-yoghurt-bowl"],
+    ["Eggs on GF toast with spinach & avo","Scrambled, poached or boiled. Swap toast for sweet potato rounds.","bf-eggs-toast"],
+    ["Overnight chia pudding","Chia, milk, a little honey. Top with mango or passionfruit.","bf-chia"],
+    ["Veggie omelette","Zucchini, capsicum, cherry tomato, feta.","bf-omelette"],
+    ["Banana & berry smoothie","Milk or yoghurt, frozen banana, berries, spoon of peanut butter.","bf-smoothie"],
+    ["Buckwheat pancakes","Buckwheat is gluten free despite the name. Top with fruit and yoghurt.","bf-buckwheat"]
   ],
   lunch:[
     ["Dinner leftovers","The easiest lunch of all. Pack straight into containers after dinner."],
-    ["Chicken, quinoa & roast veg bowl","Use Monday's chicken or a supermarket roast chook."],
-    ["Tuna & bean salad","Tinned tuna, cannellini beans, cucumber, tomato, olive oil and lemon."],
-    ["Rice paper rolls","Fill with leftover chicken, lettuce, carrot, herbs. Packs well."],
-    ["GF wrap with hummus & salad","Add leftover chicken or a boiled egg."],
-    ["Frittata slice","Bake a tray on Sunday, slice for the week. Keeps 3–4 days in the fridge."]
+    ["Chicken, quinoa & roast veg bowl","Use Monday's chicken or a supermarket roast chook.","ln-quinoa-bowl"],
+    ["Tuna & bean salad","Tinned tuna, cannellini beans, cucumber, tomato, olive oil and lemon.","ln-tuna-bean"],
+    ["Rice paper rolls","Fill with leftover chicken, lettuce, carrot, herbs. Packs well.","rice-paper-rolls"],
+    ["GF wrap with hummus & salad","Add leftover chicken or a boiled egg.","ln-wrap"],
+    ["Frittata slice","Bake a tray on Sunday, slice for the week. Keeps 3–4 days in the fridge.","ln-frittata"]
   ],
   snack:[
     ["Apple or pear with peanut butter",""],
@@ -645,13 +828,14 @@ function dayPlan(w, i){
   const t = PLAN_START + (w*7+i)*DAY_MS;
   const k = DAYS[i][0], rot = rotOf(w), st = status(t);
   const [b,l] = DAY_BL[["mon","tue","wed","thu","fri"][i%5]];
-  const bi = (b + w) % IDEAS.breakfast.length, li = (l + w*2) % IDEAS.lunch.length;
-  const out = {t, k, st, rot, breakfast: IDEAS.breakfast[bi][0], lunch: IDEAS.lunch[li][0]};
+  const mod = (x, n) => ((x % n) + n) % n;
+  const bi = mod(b + w, IDEAS.breakfast.length), li = mod(l + w*2, IDEAS.lunch.length);
+  const out = {t, k, st, rot, breakfast: IDEAS.breakfast[bi][0], breakfastId: IDEAS.breakfast[bi][2], lunch: IDEAS.lunch[li][0], lunchId: IDEAS.lunch[li][2]};
   if (st === "away"){
     const n = Math.floor((t-ROSTER_START)/DAY_MS);
     if (t >= FREEZER_FROM){ out.mode="freezer"; out.dinner = FREEZER[((n%FREEZER.length)+FREEZER.length)%FREEZER.length]; }
     else { out.mode="easy"; out.dinner = EASY[((n%EASY.length)+EASY.length)%EASY.length]; }
-    out.lunch = "Dinner leftovers or a GF wrap with hummus & salad";
+    out.lunch = "Dinner leftovers or a GF wrap with hummus & salad"; out.lunchId = "ln-wrap";
   } else if (i < 5){
     out.mode="cook"; out.dinner = swaps[`w${rot+1}-${k}`] || ROTATION[rot][k];
   } else {
@@ -694,8 +878,9 @@ function renderWeek(){
     return `<article class="${cls}">
       <div><div class="dn">${name.slice(0,3)}</div><div class="dd">${fmt(d.t)}</div>${d.st==="away"?'<div class="aw">away</div>':""}</div>
       <div class="meals">
-        <div class="mrow"><span class="mlab">Breakfast</span><span>${esc(d.breakfast)}</span></div>
-        <div class="mrow"><span class="mlab">Lunch</span><span>${esc(d.lunch)}</span></div>
+        ${typeof cookRowHtml === "function" ? cookRowHtml(d.t) : ""}
+        <div class="mrow"><span class="mlab">Breakfast</span><div class="dinner"><span>${esc(d.breakfast)}</span>${d.breakfastId?`<button class="linkbtn" data-open="${esc(d.breakfastId)}">Recipe</button>`:""}</div></div>
+        <div class="mrow"><span class="mlab">Lunch</span><div class="dinner"><span>${esc(d.lunch)}</span>${d.lunchId?`<button class="linkbtn" data-open="${esc(d.lunchId)}">Recipe</button>`:""}</div></div>
         ${dinnerRow}${batchRow}
       </div>
     </article>`;
@@ -1470,7 +1655,7 @@ function renderRecipes(){
 }
 
 function renderIdeas(){
-  const sec = (h, arr) => `<section><h3>${h}</h3><ul>${arr.map(([t,n])=>`<li>${esc(t)}${n?`<small>${esc(n)}</small>`:""}</li>`).join("")}</ul></section>`;
+  const sec = (h, arr) => `<section><h3>${h}</h3><ul>${arr.map(([t,n,id])=>`<li>${esc(t)}${id?` <button class="linkbtn" data-open="${esc(id)}">Recipe &amp; ingredients</button>`:""}${n?`<small>${esc(n)}</small>`:""}</li>`).join("")}</ul></section>`;
   document.getElementById("ideas").innerHTML = sec("Breakfast",IDEAS.breakfast)+sec("Lunch",IDEAS.lunch)+sec("Snacks",IDEAS.snack);
   document.getElementById("swapRows").innerHTML = SWAPS.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("");
 }
@@ -1478,15 +1663,17 @@ function renderIdeas(){
 function openRecipe(id){
   const r = byId(id); if(!r) return;
   const lines = s => (Array.isArray(s)?s:String(s||"").split("\n")).map(x=>x.trim()).filter(Boolean);
-  const ing = r.ours ? lines(r.ingredients) : r.key;
-  const steps = r.ours ? lines(r.method) : [];
+  const full = r.ours || !!r.ingredients;
+  const ing = full ? lines(r.ingredients) : r.key;
+  const steps = full ? lines(r.method) : [];
   document.getElementById("dlgBody").innerHTML = `
     <h3>${esc(r.title)}</h3>
     <div class="meta"><span class="chip">${esc(r.type)}</span>${r.time?`<span>${esc(r.time)}</span>`:""}${r.ours?'<span class="chip ours">Ours</span>':`<span>from ${esc(r.source)}</span>`}${r.left?'<span class="chip">leftover-friendly</span>':""}</div>
     ${r.gf?`<div class="gfnote"><strong>Gluten free:</strong> ${esc(r.gf)}</div>`:""}
-    ${ing.length?`<div><div class="mlab">${r.ours?"Ingredients":"Key ingredients"}</div><ul>${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+    ${ing.length?`<div><div class="mlab">${full?"Ingredients":"Key ingredients"}${r.serves?` · serves ${r.serves}`:""}</div><ul>${ing.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
     ${steps.length?`<div><div class="mlab">Method</div><ol>${steps.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div>`:""}
-    ${!r.ours?'<p class="tip">Full ingredients and method are on the original site.</p>':""}
+    ${!full?'<p class="tip">Full ingredients and method are on the original site.</p>':""}
+    ${full && typeof addToMyList === "function" ? `<div class="row"><button class="btn ghost" data-addlist="${esc(r.id)}">Add ingredients to a shopping list</button><span class="tip" id="addListMsg"></span></div>`:""}
     <div class="row">
       ${r.url?`<a class="btn" href="${esc(r.url)}" target="_blank" rel="noopener">Open recipe ↗</a>`:""}
       ${r.ours && db?`<button class="btn danger" id="delBtn" data-id="${esc(r.id)}">Delete</button>`:""}
@@ -1497,14 +1684,14 @@ function openRecipe(id){
 
 function setView(v){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
-  ["week","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+  ["week","calendar","chores","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
 }
 
 function renderAll(){ renderWeek(); renderRecipes(); }
 
 document.addEventListener("click", async e => {
   const t = e.target.closest("button,a"); if(!t) return;
-  if (t.dataset.view) setView(t.dataset.view);
+  if (t.dataset.view){ setView(t.dataset.view); if (t.closest("nav.tabs") === null && t.dataset.view) window.scrollTo({top:0}); }
   if (t.id === "prevWeek" && weekIdx > -2){ weekIdx--; renderWeek(); }
   if (t.id === "nextWeek"){ weekIdx++; renderWeek(); }
   if (t.dataset.filter){ filter = t.dataset.filter; renderRecipes(); }
@@ -1689,6 +1876,7 @@ window.addEventListener("appinstalled", () => { const c = document.getElementByI
 if (isStandalone()){ const c = document.getElementById("installCard"); if (c) c.hidden = true; }
 if (navigator.storage && navigator.storage.persist){ navigator.storage.persist().catch(() => {}); }
 </script>
+<script src="family.js"></script>
 
 </body>
 </html>
