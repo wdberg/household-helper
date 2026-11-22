@@ -366,12 +366,20 @@ function renderAcctBar(){
 }
 
 /* ---------- Family tab: sign up, sign in, family, logins, invites, your login ---------- */
-let authMode = "start", pendingJoinCode = "";
+let authMode = "start", pendingJoinCode = "", linkProblem = "";
 const field = (id, label, attrs = "", hint = "") => `<label>${label}${hint ? ` <span class="tip">${hint}</span>` : ""}<input id="${id}" ${attrs}></label>`;
 const pw = (id, label = "Password", hint = "(at least 8 characters)", ac = "new-password") => field(id, label, `type="password" minlength="${ac === "current-password" ? 6 : 8}" autocomplete="${ac}" required`, hint);
 const privacyLink = '<p class="tip">By signing up you agree to how your data is kept, explained in the <button type="button" class="linkbtn" data-showprivacy="1">privacy notice</button>.</p>';
 
-function renderAccount(){ renderAccountInner(); if (document.getElementById("captchaBox")) mountCaptcha(); }
+function renderAccount(){
+  renderAccountInner();
+  // A reset or sign-in link that didn't work: explain why, above the form
+  if (linkProblem){
+    if (Cloud.user){ toast(linkProblem, 8000); linkProblem = ""; }
+    else { const el = document.getElementById("acctBody"); if (el) el.insertAdjacentHTML("afterbegin", `<div class="usealert bad" role="alert"><span>${esc(linkProblem)}</span></div>`); }
+  }
+  if (document.getElementById("captchaBox")) mountCaptcha();
+}
 function renderAccountInner(){
   const el = document.getElementById("acctBody"); if (!el) return;
   const u = Cloud.user, f = Cloud.fam;
@@ -548,7 +556,7 @@ async function shareInvite(code, exp){
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
   const d = b.dataset;
-  if (d.authgo){ authMode = d.authgo; renderAccount(); const first = document.querySelector("#acctBody input"); if (first && d.authgo !== "start") first.focus(); }
+  if (d.authgo){ authMode = d.authgo; linkProblem = ""; renderAccount(); const first = document.querySelector("#acctBody input"); if (first && d.authgo !== "start") first.focus(); }
   if (d.showprivacy){ const p = document.getElementById("privacy"); p.open = true; p.scrollIntoView({block: "start"}); }
   if (d.invrole){ inviteRole = d.invrole; renderInvites(); document.getElementById("inviteRoleHelp").textContent = inviteRole === "kid" ? "Kids can see everything, tick off chores and add to shopping lists, but can't change other things." : "Adults can change everything and invite others."; }
   if (b.id === "makeInvite"){
@@ -688,6 +696,19 @@ function renderMyLogin(){
   }catch{}
   // Don't redraw a panel while someone is typing in it
   const typingIn = id => { const a = document.activeElement; return !!(a && a.closest && a.closest("#" + id) && a.matches("input, textarea, select")); };
+  // Coming back from an email link that has expired or was already used (Supabase puts the reason after the #)
+  try{
+    const h = new URLSearchParams(location.hash.slice(1));
+    if (h.get("error") || h.get("error_code")){
+      const code = h.get("error_code"), desc = h.get("error_description");
+      linkProblem = code === "otp_expired"
+        ? "That link has expired or has already been used. Ask for a new one, or ask your family's owner to reset your password."
+        : `That link didn't work${desc ? ` (${desc})` : ""}. Please ask for a new one.`;
+      authMode = "reset";
+      history.replaceState(null, "", location.pathname + location.search);
+      setTimeout(() => { setView("family"); renderAccount(); document.getElementById("acctPanel").scrollIntoView({block: "start"}); }, 0);
+    }
+  }catch{}
   const refresh = () => {
     renderAcctBar();
     if (!typingIn("acctBody")) renderAccount();
