@@ -408,6 +408,17 @@ body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:non
 .nutflag{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn);font-weight:600;justify-self:start}
 body.kidmode #lbSettingsPanel, body.kidmode .lbacts{display:none!important}
 body.kidmode #lunchBody input{pointer-events:none}
+/* What can I cook? */
+.cooklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+.cookcard{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:6px;min-width:0}
+.cc-head{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline}
+.cc-head b{font-size:15px;overflow-wrap:anywhere}
+.cc-bar{height:8px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.cc-bar span{display:block;height:100%;background:var(--accent);border-radius:99px}
+.cc-uses{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13px;color:var(--muted)}
+.cc-need summary{cursor:pointer;font-size:13px;color:var(--muted)}
+.cc-need ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.cookcard .row{gap:14px}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -521,6 +532,11 @@ body.kidmode #lunchBody input{pointer-events:none}
       <div class="panel" id="useSoonPanel" hidden>
         <h3>Use it up</h3>
         <div id="useSoon"></div>
+      </div>
+      <div class="panel" id="cookPanel">
+        <div class="panel-head"><h3>What can I cook?</h3><div class="filters seg"><button data-cooktype="all" aria-pressed="true">All</button><button data-cooktype="dinner" aria-pressed="false">Dinner</button><button data-cooktype="breakfast" aria-pressed="false">Breakfast</button><button data-cooktype="lunch" aria-pressed="false">Lunch</button><button data-cooktype="snack" aria-pressed="false">Snacks</button></div></div>
+        <p class="tip">Recipes you can make with what's here, best matches first. Recipes that use up food close to its use-by date get a boost. Salt, pepper, oil and water are assumed.</p>
+        <div class="cooklist" id="cookList"></div>
       </div>
       <div class="panel adultonly">
         <h3 id="pantryFormTitle">Add to the pantry</h3>
@@ -650,7 +666,7 @@ body.kidmode #lunchBody input{pointer-events:none}
     <section id="view-recipes" hidden>
       <h2>Recipe library</h2>
       <div class="qbar"><input type="search" class="q" id="q-recipes" data-q="recipes" placeholder="Search recipes, e.g. salmon, soup" autocomplete="off" aria-label="Search recipes, e.g. salmon, soup"><span class="qcount" id="qc-recipes"></span></div>
-      <p class="sub">Web recipes open on the original site. Our own recipes open right here.</p>
+      <p class="sub">Web recipes open on the original site. Our own recipes open right here. <button class="linkbtn" id="goCook">What can I cook with what's in the pantry?</button></p>
       <div class="filters" id="filters"></div>
       <div class="grid" id="recipeGrid"></div>
     </section>
@@ -2128,6 +2144,7 @@ if (navigator.storage && navigator.storage.persist){ navigator.storage.persist()
 <script src="account.js"></script>
 <script src="pantry.js"></script>
 <script src="lunchbox.js"></script>
+<script src="cook.js"></script>
 
 </body>
 </html>
