@@ -333,6 +333,19 @@ button.pchip:hover{border-color:var(--accent)}
 .pform .three > label{min-width:0}
 .pform input,.pform select{width:100%;min-width:0}
 @media (max-width:520px){.pform .three{grid-template-columns:1fr 1fr}.pform .three label:last-child{grid-column:1 / -1}}
+/* Common chores picker */
+.commonpanel summary{cursor:pointer;display:grid;gap:2px}
+.commonpanel summary h3{display:inline}
+.cgroup{margin-top:14px}
+ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
+.commonlist li{display:grid;grid-template-columns:1fr auto;gap:0 10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--sunk)}
+.commonlist label{display:flex;gap:8px;align-items:center;cursor:pointer;min-width:0;font-weight:500}
+.commonlist input{width:18px;height:18px;accent-color:var(--accent);margin:0;flex:none}
+.commonlist small{grid-column:1;padding-left:26px;color:var(--muted);font-size:12.5px}
+.commonlist li > .linkbtn,.commonlist li > .chip{grid-row:1 / span 2;grid-column:2}
+.commonlist li.have .cn{color:var(--muted)}
+.commonfoot{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);margin:14px -16px -16px;padding:12px 16px;display:grid;gap:10px;border-radius:0 0 var(--r) var(--r)}
+.commonfoot label{display:grid;gap:4px;font-size:13px;font-weight:600;max-width:360px}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -415,7 +428,8 @@ button.pchip:hover{border-color:var(--accent)}
         <h3 id="choreFormTitle">Add a chore</h3>
         <form class="add chform" id="choreForm">
           <input type="hidden" id="ch-id">
-          <label>Chore<input id="ch-name" required maxlength="80" placeholder="e.g. Take the bins out"></label>
+          <label>Chore<input id="ch-name" required maxlength="80" list="ch-names" autocomplete="off" placeholder="e.g. Take the bins out"></label>
+          <datalist id="ch-names"></datalist>
           <div class="two">
             <label>Who<select id="ch-who"></select></label>
             <label>How often<select id="ch-freq"><option value="daily">Every day</option><option value="weekly" selected>Weekly</option><option value="fortnightly">Fortnightly</option><option value="monthly">Monthly</option><option value="once">Once</option></select></label>
@@ -425,7 +439,15 @@ button.pchip:hover{border-color:var(--accent)}
           <div class="row"><button class="btn" type="submit" id="choreSave">Add chore</button><button class="btn ghost" type="button" id="choreCancel" hidden>Cancel</button><span class="tip" id="choreMsg"></span></div>
         </form>
       </div>
-      <div class="panel-head"><h3>Chore list</h3><button class="btn ghost" id="choreStarter">Add common chores</button></div>
+      <details class="panel commonpanel" id="commonPanel">
+        <summary><h3>Choose from common chores</h3><span class="tip">Tick the ones your household does and add them in one go. Each comes with a suggested day and how often, which you can change later.</span></summary>
+        <div id="commonBody"></div>
+        <div class="commonfoot">
+          <label>Who does them<select id="common-who"></select></label>
+          <div class="row"><button class="btn" id="commonAdd">Add ticked chores</button><span class="tip" id="commonMsg"></span></div>
+        </div>
+      </details>
+      <div class="panel-head" style="margin-top:16px"><h3>Chore list</h3><button class="btn ghost" id="choreStarter">Choose from common chores</button></div>
       <div id="choreList"></div>
     </section>
 
