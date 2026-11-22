@@ -390,6 +390,24 @@ body.kidmode [data-pdel], body.kidmode [data-cookday], body.kidmode [data-evopen
 body.kidmode .mrow:has(select.swap), body.kidmode #tab-add, body.kidmode #tab-roster, body.kidmode #view-costs details.prices,
 body.kidmode label.restore, body.kidmode #restoreBtn, body.kidmode #view-specials .panel:has(.wadd), body.kidmode #resetPrices{display:none!important}
 body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:none;opacity:.75}
+/* Lunchbox planner */
+.kidpicks{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}
+.kidpick{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.kidpick input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.lbnut{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:600;font-size:14px}
+.lbnut input{width:18px;height:18px;accent-color:var(--accent)}
+.lbtabs{margin-bottom:10px}
+.lbacts{margin:8px 0 4px}
+.lbdays{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:10px}
+.lbday{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:8px;min-width:0}
+.lbday .dn{font-family:var(--display);font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.lbday .dd{font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0}
+.lbslot{display:grid;gap:3px;min-width:0}
+.lbslot input{width:100%;min-width:0;font-size:15px}
+.lbslot .linkbtn{justify-self:start}
+.nutflag{background:color-mix(in srgb,var(--warn) 16%,var(--surface));color:var(--warn);font-weight:600;justify-self:start}
+body.kidmode #lbSettingsPanel, body.kidmode .lbacts{display:none!important}
+body.kidmode #lunchBody input{pointer-events:none}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -417,6 +435,7 @@ body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:non
     <button role="tab" id="tab-calendar" aria-selected="false" data-view="calendar">Calendar</button>
     <button role="tab" id="tab-chores" aria-selected="false" data-view="chores">Chores</button>
     <button role="tab" id="tab-pantry" aria-selected="false" data-view="pantry">Pantry</button>
+    <button role="tab" id="tab-lunch" aria-selected="false" data-view="lunch">Lunchboxes</button>
     <button role="tab" id="tab-family" aria-selected="false" data-view="family">Family &amp; sign in</button>
     <button role="tab" id="tab-roster" aria-selected="false" data-view="roster">Roster</button>
     <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
@@ -522,6 +541,25 @@ body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:non
       </div>
       <div class="panel-head" style="margin-top:16px"><div class="filters seg" id="pantryWhere" aria-label="Show"></div><span class="tip" id="pantryCount"></span></div>
       <div id="pantryList"></div>
+    </section>
+
+    <section id="view-lunch" hidden>
+      <h2>School lunchboxes</h2>
+      <p class="sub">Plan each child's lunchbox for the school week: a main, fruit or veg, a snack and an extra. Every idea is gluten free. Tap a box to pick from ideas or type your own, then add it all to the shopping list in one go.</p>
+      <div class="panel" id="lbSettingsPanel">
+        <h3>Who needs a lunchbox?</h3>
+        <div class="kidpicks" id="lbKidsPick"></div>
+        <label class="check lbnut"><input type="checkbox" id="lbNutFree"> Nut-free school <span class="tip">(leaves nut ideas out and flags anything with nuts)</span></label>
+      </div>
+      <div class="weeknav">
+        <button class="btn ghost" id="lbPrev" aria-label="Previous week">←</button>
+        <div class="wk"><div id="lbLabel" class="wl"></div><button class="linkbtn" id="lbToday">Back to this week</button></div>
+        <button class="btn ghost" id="lbNext" aria-label="Next week">→</button>
+      </div>
+      <div class="filters seg lbtabs" id="lbTabs" aria-label="Child"></div>
+      <div class="panel" id="lunchBody"></div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="lbShop">Add this week's lunchbox food to the shopping list</button><span class="tip" id="lbMsg"></span></div>
+      <datalist id="lb-main"></datalist><datalist id="lb-fruit"></datalist><datalist id="lb-snack"></datalist><datalist id="lb-extra"></datalist>
     </section>
 
     <section id="view-family" hidden>
@@ -1896,7 +1934,7 @@ function openRecipe(id){
 
 function setView(v){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
-  ["week","calendar","chores","pantry","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+  ["week","calendar","chores","pantry","lunch","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
 }
 
 function renderAll(){ renderWeek(); renderRecipes(); }
@@ -2091,6 +2129,7 @@ if (navigator.storage && navigator.storage.persist){ navigator.storage.persist()
 <script src="family.js"></script>
 <script src="account.js"></script>
 <script src="pantry.js"></script>
+<script src="lunchbox.js"></script>
 
 </body>
 </html>
