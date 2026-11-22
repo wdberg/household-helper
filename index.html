@@ -367,6 +367,11 @@ ul.commonlist{list-style:none;margin:4px 0 0;padding:0}
 .code.sm{font-size:16px;letter-spacing:.12em}
 .captcha:empty{display:none}
 #acctPanel,#privacy,#commonPanel{scroll-margin-top:72px}
+.joinalert{margin:10px 0 0;background:var(--frz-soft);align-items:flex-start}
+.joinalert .ja-main{flex:1 1 220px;min-width:0;display:grid;gap:4px}
+.joinalert ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.joinalert li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.joinalert small{color:var(--muted);font-size:12.5px}
 .captcha{min-height:0}
 .code.pwcode{font-size:24px;letter-spacing:.08em;user-select:all}
 .howto summary,#privacy summary{cursor:pointer;display:grid;gap:2px}
@@ -405,6 +410,7 @@ body.kidmode #peopleBody input, body.kidmode #cookBody select{pointer-events:non
   </section>
 
   <div class="acctbar" id="acctBar"></div>
+  <div class="usealert joinalert" id="joinAlert" role="status" hidden></div>
 
   <nav class="tabs" role="tablist">
     <button role="tab" id="tab-week" aria-selected="true" data-view="week">This week</button>

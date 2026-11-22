@@ -552,6 +552,34 @@ async function shareInvite(code, exp){
   catch{ msg.textContent = `Send them this code: ${code}`; }
 }
 
+/* ---------- Alerts when someone new joins ----------
+   Owners and adults see a notice the first time a new person appears in the family on this phone,
+   with a one-tap Remove in case it wasn't expected. Each phone remembers who it has already seen. */
+const seenKey = () => "hh-seen-members-" + Cloud.fam.id;
+function seenMembers(){ try{ return JSON.parse(localStorage.getItem(seenKey()) || "null"); }catch{ return null; } }
+function saveSeen(ids){ try{ localStorage.setItem(seenKey(), JSON.stringify([...new Set(ids)])); }catch{} }
+let joinChecking = false;
+async function checkJoins(){
+  const box = document.getElementById("joinAlert"); if (!box) return;
+  const f = Cloud.fam;
+  if (!f || f.role === "kid"){ box.hidden = true; return; }
+  if (joinChecking) return; joinChecking = true;
+  try{
+    const list = await Cloud.members();
+    const seen = seenMembers();
+    if (!seen){ saveSeen(list.map(m => m.user_id)); box.hidden = true; return; } // first time on this phone: everyone already here counts as seen
+    const fresh = list.filter(m => !seen.includes(m.user_id) && m.user_id !== Cloud.user.id);
+    box.hidden = !fresh.length;
+    if (!fresh.length) return;
+    const when = m => new Date(m.created_at).toLocaleString("en-AU", {weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit"});
+    box.innerHTML = `<div class="ja-main"><strong>${fresh.length === 1 ? "Someone new joined your family" : `${fresh.length} people joined your family`}</strong>
+      <ul>${fresh.map(m => `<li><span><b>${esc(m.name)}</b> joined as ${m.role === "kid" ? "a kid" : m.role === "owner" ? "an owner" : "an adult"} · ${esc(when(m))}</span>${m.role !== "owner" ? `<button class="linkbtn" data-rmmember="${esc(m.user_id)}" data-name="${esc(m.name)}">Remove</button>` : ""}</li>`).join("")}</ul>
+      <small>Don't know ${fresh.length === 1 ? "them" : "someone here"}? Tap Remove, then cancel any invite codes you didn't mean to share.</small></div>
+      <button class="btn sm" data-joinok="${esc(fresh.map(m => m.user_id).join(","))}">${fresh.length === 1 ? "That's fine" : "They're all fine"}</button>`;
+  }catch{ /* offline: try again later */ }
+  finally{ joinChecking = false; }
+}
+
 /* ---------- Clicks, forms and changes ---------- */
 document.addEventListener("click", async e => {
   const b = e.target.closest("button"); if (!b) return;
@@ -570,6 +598,7 @@ document.addEventListener("click", async e => {
     b.disabled = false;
   }
   if (d.shareinv) shareInvite(d.shareinv, d.exp);
+  if (d.joinok !== undefined && Cloud.fam){ saveSeen([...(seenMembers() || []), ...d.joinok.split(",")]); checkJoins(); }
   if (d.cancelinv){
     if (d.confirm !== "1"){ d.confirm = "1"; b.textContent = "Tap again to cancel"; return; }
     try{ await Cloud.cancelInvite(d.cancelinv); renderInvites(); }catch(err){ toast(friendlyError(err)); }
@@ -591,7 +620,7 @@ document.addEventListener("click", async e => {
   if (d.copytext){ try{ await navigator.clipboard.writeText(d.copytext); b.textContent = "Copied"; }catch{ b.textContent = "Couldn't copy: write it down"; } }
   if (d.rmmember){
     if (d.confirm !== "1"){ d.confirm = "1"; b.textContent = `Tap again to remove ${d.name}`; return; }
-    try{ await Cloud.removeMember(d.rmmember); toast(`${d.name} can no longer sign in to this family.`); renderLogins(); }catch(err){ toast(friendlyError(err)); }
+    try{ await Cloud.removeMember(d.rmmember); toast(`${d.name} can no longer sign in to this family.`); renderLogins(); checkJoins(); }catch(err){ toast(friendlyError(err)); }
   }
   if (d.addperson && db){
     await db.collection("people").add({name: d.name, userId: d.addperson, color: PALETTE[people.length % PALETTE.length], created: Date.now()});
@@ -713,7 +742,7 @@ function renderMyLogin(){
     renderAcctBar();
     if (!typingIn("acctBody")) renderAccount();
     if (!typingIn("myLoginBody")) renderMyLogin();
-    renderLogins(); renderPeople();
+    renderLogins(); renderPeople(); checkJoins();
   };
   // Opening the Family tab shows the latest list of logins and invites
   document.addEventListener("click", e => { const t = e.target.closest("[data-view='family']"); if (t && Cloud.fam) renderLogins(); });
