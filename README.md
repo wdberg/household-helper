@@ -30,4 +30,6 @@ Roles: the **owner** can do everything, including changing roles and deleting th
 
 Each person can change their password, sign out, or delete their login. The owner can delete the whole family and all its data. The app has step-by-step instructions and a privacy notice on the Family & sign in tab.
 
+Each person can switch on a **daily reminder** on their phone (Family & sign in → Reminders on this phone): one notification at a chosen time with who's cooking and tonight's dinner, their chores, food to use up and tomorrow's lunchboxes. It's sent by the `send-reminders` Edge Function every 15 minutes (`supabase/functions/send-reminders`, set up in `supabase/reminders.sql`).
+
 Data is stored in the `household-helper` Supabase project (Sydney). Row-level security means only members of a family can read its data, and only owners and adults can change most of it. The database setup is in `supabase/family_members_and_invites.sql`.

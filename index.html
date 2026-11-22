@@ -419,6 +419,13 @@ body.kidmode #lunchBody input{pointer-events:none}
 .cc-need summary{cursor:pointer;font-size:13px;color:var(--muted)}
 .cc-need ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
 .cookcard .row{gap:14px}
+/* Reminders */
+.remtoggle{display:flex;gap:8px;align-items:center;font-weight:600;font-size:15px;margin:8px 0}
+.remtoggle input{width:20px;height:20px;accent-color:var(--accent)}
+.rempick{border:0;padding:0;margin:10px 0;display:grid;gap:6px}
+.rempick legend{font-size:13px;font-weight:600;padding:0;margin-bottom:4px}
+.rempick label{display:flex;gap:8px;align-items:center;font-size:14px}
+.rempick input{width:18px;height:18px;accent-color:var(--accent)}
 @media (prefers-reduced-motion:no-preference){.card,.day{transition:border-color .15s}.card:hover{border-color:var(--accent)}}
 </style>
 
@@ -576,6 +583,13 @@ body.kidmode #lunchBody input{pointer-events:none}
           <li>Go to <strong>Family &amp; sign in</strong> → <strong>Sign in</strong>, and use your own email and password.</li>
           <li>Everything appears straight away. Changes made on any phone show on the others within a few seconds.</li>
         </ol>
+        <h4>Daily reminders</h4>
+        <ol class="steps">
+          <li>On iPhone, open Household Helper from its Home Screen icon (reminders don't work in Safari). On Android, the installed app or Chrome both work.</li>
+          <li>Go to <strong>Family &amp; sign in</strong> → <strong>Reminders on this phone</strong> and switch on <strong>Daily reminder on this phone</strong>. Allow notifications when asked.</li>
+          <li>Pick a time and what to include: who's cooking and tonight's dinner, your chores, food to use up, and tomorrow's lunchboxes.</li>
+          <li>Tap <strong>Send a test reminder now</strong> to check it works. Each person turns it on on their own phone.</li>
+        </ol>
         <h4>Adults and kids</h4>
         <ul class="steps">
           <li><b>Owner</b> (whoever started the family, plus anyone they make an owner): can do everything, including resetting passwords, changing roles and deleting the family.</li>
@@ -622,6 +636,11 @@ body.kidmode #lunchBody input{pointer-events:none}
         <div class="cookgrid" id="cookBody"></div>
       </div>
 
+      <div class="panel" id="remindPanel" hidden>
+        <h3>Reminders on this phone</h3>
+        <div id="remindBody"></div>
+      </div>
+
       <div class="panel" id="myLoginPanel" hidden>
         <h3>Your login</h3>
         <div id="myLoginBody"></div>
@@ -651,6 +670,7 @@ body.kidmode #lunchBody input{pointer-events:none}
             <li>Google Fonts (for the app's lettering) and jsDelivr (for the barcode reader) are loaded from their servers, which see your phone's internet address.</li>
             <li>Signing up and signing in use Cloudflare Turnstile, a privacy-friendly check that stops automated sign-ups. Cloudflare sees basic details of your browser to tell people from bots.</li>
             <li>Tapping <strong>Find</strong> opens the supermarket's own website or app, with its own privacy policy.</li>
+            <li>If you turn on daily reminders, your phone's reminder settings are stored with your family's data, and the notification is delivered through Apple's or Google's notification service. It's encrypted so they can't read it.</li>
           </ul>
           <h4>Your choices</h4>
           <ul>
@@ -2145,6 +2165,7 @@ if (navigator.storage && navigator.storage.persist){ navigator.storage.persist()
 <script src="pantry.js"></script>
 <script src="lunchbox.js"></script>
 <script src="cook.js"></script>
+<script src="reminders.js"></script>
 
 </body>
 </html>
