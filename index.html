@@ -435,7 +435,6 @@ body.kidmode #lunchBody input{pointer-events:none}
     <button role="tab" id="tab-calendar" aria-selected="false" data-view="calendar">Calendar</button>
     <button role="tab" id="tab-chores" aria-selected="false" data-view="chores">Chores</button>
     <button role="tab" id="tab-pantry" aria-selected="false" data-view="pantry">Pantry</button>
-    <button role="tab" id="tab-lunch" aria-selected="false" data-view="lunch">Lunchboxes</button>
     <button role="tab" id="tab-family" aria-selected="false" data-view="family">Family &amp; sign in</button>
     <button role="tab" id="tab-roster" aria-selected="false" data-view="roster">Roster</button>
     <button role="tab" id="tab-recipes" aria-selected="false" data-view="recipes">Recipes</button>
@@ -541,25 +540,6 @@ body.kidmode #lunchBody input{pointer-events:none}
       </div>
       <div class="panel-head" style="margin-top:16px"><div class="filters seg" id="pantryWhere" aria-label="Show"></div><span class="tip" id="pantryCount"></span></div>
       <div id="pantryList"></div>
-    </section>
-
-    <section id="view-lunch" hidden>
-      <h2>School lunchboxes</h2>
-      <p class="sub">Plan each child's lunchbox for the school week: a main, fruit or veg, a snack and an extra. Every idea is gluten free. Tap a box to pick from ideas or type your own, then add it all to the shopping list in one go.</p>
-      <div class="panel" id="lbSettingsPanel">
-        <h3>Who needs a lunchbox?</h3>
-        <div class="kidpicks" id="lbKidsPick"></div>
-        <label class="check lbnut"><input type="checkbox" id="lbNutFree"> Nut-free school <span class="tip">(leaves nut ideas out and flags anything with nuts)</span></label>
-      </div>
-      <div class="weeknav">
-        <button class="btn ghost" id="lbPrev" aria-label="Previous week">←</button>
-        <div class="wk"><div id="lbLabel" class="wl"></div><button class="linkbtn" id="lbToday">Back to this week</button></div>
-        <button class="btn ghost" id="lbNext" aria-label="Next week">→</button>
-      </div>
-      <div class="filters seg lbtabs" id="lbTabs" aria-label="Child"></div>
-      <div class="panel" id="lunchBody"></div>
-      <div class="row" style="margin-top:14px"><button class="btn" id="lbShop">Add this week's lunchbox food to the shopping list</button><span class="tip" id="lbMsg"></span></div>
-      <datalist id="lb-main"></datalist><datalist id="lb-fruit"></datalist><datalist id="lb-snack"></datalist><datalist id="lb-extra"></datalist>
     </section>
 
     <section id="view-family" hidden>
@@ -676,7 +656,25 @@ body.kidmode #lunchBody input{pointer-events:none}
     </section>
 
     <section id="view-ideas" hidden>
-      <h2>Quick ideas</h2>
+      <div class="lunchwrap">
+      <h2 id="lunchboxes">School lunchboxes</h2>
+      <p class="sub">Plan each child's lunchbox for the school week: a main, fruit or veg, a snack and an extra. Every idea is gluten free. Tap a box to pick from ideas or type your own, then add it all to the shopping list in one go.</p>
+      <div class="panel" id="lbSettingsPanel">
+        <h3>Who needs a lunchbox?</h3>
+        <div class="kidpicks" id="lbKidsPick"></div>
+        <label class="check lbnut"><input type="checkbox" id="lbNutFree"> Nut-free school <span class="tip">(leaves nut ideas out and flags anything with nuts)</span></label>
+      </div>
+      <div class="weeknav">
+        <button class="btn ghost" id="lbPrev" aria-label="Previous week">←</button>
+        <div class="wk"><div id="lbLabel" class="wl"></div><button class="linkbtn" id="lbToday">Back to this week</button></div>
+        <button class="btn ghost" id="lbNext" aria-label="Next week">→</button>
+      </div>
+      <div class="filters seg lbtabs" id="lbTabs" aria-label="Child"></div>
+      <div class="panel" id="lunchBody"></div>
+      <div class="row" style="margin-top:14px"><button class="btn" id="lbShop">Add this week's lunchbox food to the shopping list</button><span class="tip" id="lbMsg"></span></div>
+      <datalist id="lb-main"></datalist><datalist id="lb-fruit"></datalist><datalist id="lb-snack"></datalist><datalist id="lb-extra"></datalist>
+      </div>
+      <h2 style="margin-top:28px">Breakfast, lunch &amp; snack ideas</h2>
       <div class="qbar"><input type="search" class="q" id="q-ideas" data-q="ideas" placeholder="Search ideas and swaps, e.g. eggs, pasta" autocomplete="off" aria-label="Search ideas and swaps, e.g. eggs, pasta"><span class="qcount" id="qc-ideas"></span></div>
       <p class="sub">Breakfasts, lunches and snacks. Tap <strong>Recipe &amp; ingredients</strong> for the full method and shopping list. GF means safe as written; check labels on packaged items.</p>
       <div class="ideas" id="ideas"></div>
@@ -1934,7 +1932,7 @@ function openRecipe(id){
 
 function setView(v){
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.view===v));
-  ["week","calendar","chores","pantry","lunch","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
+  ["week","calendar","chores","pantry","family","roster","recipes","ideas","costs","specials","household","add"].forEach(x=>document.getElementById("view-"+x).hidden = x!==v);
 }
 
 function renderAll(){ renderWeek(); renderRecipes(); }
