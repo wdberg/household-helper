@@ -16,7 +16,7 @@ const kidCanWrite = p => /^(done|shop)\//.test(p);
 /* Bot protection (Cloudflare Turnstile) on sign up, sign in and password reset.
    The site key is public. Leave it empty to switch the check off.
    Turn CAPTCHA on in Supabase (Authentication → Attack Protection) only once this key is set and live. */
-const TURNSTILE_SITE_KEY = "";
+const TURNSTILE_SITE_KEY = "0x4AAAAAAGNo7FmeyHkqMpQi";
 const captcha = {id: null, token: ""};
 let turnstileLoading = null;
 function loadTurnstile(){
