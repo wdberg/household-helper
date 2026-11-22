@@ -526,7 +526,7 @@ document.addEventListener("click", async e => {
         <p class="tip">They've been signed out on their other phones. Their family data isn't affected.</p>
         <div class="row"><button class="btn" data-copytext="${esc(temp)}">Copy password</button><button class="btn ghost" id="closeDlg">Done</button></div>`;
       document.getElementById("dlg").showModal();
-    }catch(err){ toast(friendlyError(err)); }
+    }catch(err){ toast(/not_allowed/.test(String(err && err.message)) ? "Only an owner can reset an adult's password. Adults can reset kids' passwords." : friendlyError(err)); }
     renderLogins();
   }
   if (d.copytext){ try{ await navigator.clipboard.writeText(d.copytext); b.textContent = "Copied"; }catch{ b.textContent = "Couldn't copy: write it down"; } }
@@ -573,7 +573,7 @@ document.addEventListener("submit", async e => {
     }
     if (id === "signinForm"){ msg.textContent = "Signing in…"; await Cloud.signIn(v("si-email"), document.getElementById("si-pass").value); authMode = "start"; toast("Signed in."); }
     if (id === "resetForm"){ await Cloud.reset(v("rs-email")); msg.textContent = "If that email has a login, a reset link is on its way."; keep = true; }
-    if (id === "newPassForm"){ await Cloud.changePassword(document.getElementById("np-pass").value); toast("Password saved."); }
+    if (id === "newPassForm"){ msg.textContent = "Saving…"; await Cloud.changePassword(document.getElementById("np-pass").value); toast("Password saved. Use it next time you sign in."); }
     if (id === "joinCodeForm"){ msg.textContent = "Joining…"; await Cloud.joinFamily(v("jc-code"), v("jc-name")); pendingJoinCode = ""; toast(`You're in! Welcome to the ${Cloud.fam ? Cloud.fam.name + " family" : "family"}.`, 6000); }
     if (id === "newFamForm"){ msg.textContent = "Setting up…"; await Cloud.createFamily(v("nf-family"), v("nf-name")); toast("Your family is set up. Next, add everyone in your house, then invite them.", 6000); }
     if (id === "famRenameForm"){ await Cloud.renameFamily(v("fr-name")); toast("Family name saved."); }
